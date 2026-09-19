@@ -22,18 +22,21 @@ namespace ar {
     }
 
     void Scene::Update(float dt) {
-        // Apply gravity to all rigidbodies
+        // Reset ground state and apply gravity to all rigidbodies
         for (auto& e : m_Entities) {
-            if (auto* rb = e->GetComponent<RigidBody>())
+            if (auto* rb = e->GetComponent<RigidBody>()) {
+                rb->ResetGroundState();
                 Gravity::Apply(rb);
+            }
         }
 
-        // Check collisions (O(n²) MVP style)
+        // Integrate positions and velocities
+        for (auto& e : m_Entities) e->Update(dt);
+
+        // Check collisions and resolve overlaps + set ground state
         for (size_t i = 0; i < m_Entities.size(); ++i)
             for (size_t j = i + 1; j < m_Entities.size(); ++j)
                 Collision::CheckAndResolve(m_Entities[i].get(), m_Entities[j].get());
-
-        for (auto& e : m_Entities) e->Update(dt);
         if (!m_ToDestroy.empty()) {
             m_Entities.erase(
                 std::remove_if(m_Entities.begin(), m_Entities.end(),

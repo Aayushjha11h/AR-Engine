@@ -47,14 +47,14 @@ public:
         if (GetScene()->FindEntity("Ground"))
             std::cout << "[Game] Ground exists.\n";
 
-        if (GetScene()->FindEntity("Platform1"))
-            std::cout << "[Game] Platform1 exists.\n";
+        if (GetScene()->FindEntity("LeftPlat"))
+            std::cout << "[Game] LeftPlat exists.\n";
 
-        if (GetScene()->FindEntity("Platform2"))
-            std::cout << "[Game] Platform2 exists.\n";
+        if (GetScene()->FindEntity("RightPlat"))
+            std::cout << "[Game] RightPlat exists.\n";
 
-        if (GetScene()->FindEntity("Platform3"))
-            std::cout << "[Game] Platform3 exists.\n";
+        if (GetScene()->FindEntity("Crate"))
+            std::cout << "[Game] Crate exists.\n";
     }
 
     void OnUpdate(float dt) override {

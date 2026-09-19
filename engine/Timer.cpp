@@ -43,9 +43,11 @@ namespace ar {
     void Timer::DelayIfNeeded() {
         if (m_TargetFrameTicks == 0) return;
 
-        uint64_t frameTicks = m_Now - m_Last;
-        if (frameTicks < m_TargetFrameTicks) {
-            uint64_t delayMs = (m_TargetFrameTicks - frameTicks) * 1000 / SDL_GetPerformanceFrequency();
+        uint64_t current = SDL_GetPerformanceCounter();
+        uint64_t elapsedTicks = current - m_Now;
+        if (elapsedTicks < m_TargetFrameTicks) {
+            uint64_t freq = SDL_GetPerformanceFrequency();
+            uint64_t delayMs = (m_TargetFrameTicks - elapsedTicks) * 1000 / freq;
             if (delayMs > 0) SDL_Delay(static_cast<uint32_t>(delayMs));
         }
     }

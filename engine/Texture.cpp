@@ -7,7 +7,7 @@
 namespace ar {
 
     bool Texture::Load(const std::string& path) {
-        stbi_set_flip_vertically_on_load(true);
+        stbi_set_flip_vertically_on_load(false);
         unsigned char* data = stbi_load(path.c_str(), &m_Width, &m_Height, nullptr, 4);
         if (!data) {
             std::cerr << "[Texture] Failed: " << path << "\n";

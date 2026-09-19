@@ -1,5 +1,6 @@
 #include "Collision.h"
 #include <cmath>
+#include <algorithm>
 #include "Entity.h"
 #include "Component.h" // Transform
 #include "RigidBody.h"
@@ -81,20 +82,28 @@ namespace ar {
 
         if (aStatic && bStatic) return;
 
+        // --- Ground detection for RigidBody ---
+        // m.Normal points from a to b.
+        // If m.Normal.y > 0.5f: b is below a -> a has landed on b (a is on ground).
+        // If m.Normal.y < -0.5f: a is below b -> b has landed on a (b is on ground).
+        if (rba && m.Normal.y > 0.5f) rba->IsOnGround = true;
+        if (rbb && m.Normal.y < -0.5f) rbb->IsOnGround = true;
+
         // --- Positional correction (split based on movability) ---
-        const float percent = 0.5f;
+        const float percent = 0.8f;
         const float slop = 0.01f;
-        glm::vec2 correction = m.Normal * (m.Penetration - slop);
+        float pen = std::max(0.0f, m.Penetration - slop);
+        glm::vec2 correction = m.Normal * pen;
 
         if (aStatic) {
-            tb->Position -= correction;
+            tb->Position += correction;
         }
         else if (bStatic) {
-            ta->Position += correction;
+            ta->Position -= correction;
         }
         else {
-            ta->Position += correction * percent;
-            tb->Position -= correction * percent;
+            ta->Position -= correction * 0.5f;
+            tb->Position += correction * 0.5f;
         }
 
         // --- Impulse resolution ---
@@ -136,16 +145,12 @@ namespace ar {
             (rba ? rba->Friction : 0.0f) * (rbb ? rbb->Friction : 0.0f)
         );
 
-        glm::vec2 frictionImpulse = (std::abs(jt) < j * mu)
-            ? tangent * jt
-            : tangent * (-j * mu);
+        float maxFriction = j * mu;
+        float frictionScalar = std::clamp(jt, -maxFriction, maxFriction);
+        glm::vec2 frictionImpulse = tangent * frictionScalar;
 
         if (rba) rba->ApplyImpulse(-frictionImpulse);
         if (rbb) rbb->ApplyImpulse(frictionImpulse);
-
-        // --- Ground detection for RigidBody ---
-        if (rba && m.Normal.y > 0.5f) rba->IsOnGround = true;
-        if (rbb && m.Normal.y < -0.5f) rbb->IsOnGround = true;
     }
 
     void Collision::CheckAndResolve(Entity* a, Entity* b) {

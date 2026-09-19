@@ -95,6 +95,16 @@ Token Lexer::NextToken() {
         token = ReadString();
         break;
 
+    case '-':
+        if (IsDigit(PeekChar())) {
+            token = ReadNumber();
+        }
+        else {
+            token = MakeToken(TokenType::ERROR, "-");
+            ReadChar();
+        }
+        break;
+
     default:
         if (IsDigit(currentChar)) {
             token = ReadNumber();
@@ -114,6 +124,9 @@ Token Lexer::NextToken() {
 
 Token Lexer::ReadNumber() {
     size_t start = position;
+    if (currentChar == '-') {
+        ReadChar();
+    }
     while (IsDigit(currentChar)) {
         ReadChar();
     }

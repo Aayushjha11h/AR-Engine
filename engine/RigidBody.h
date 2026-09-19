@@ -31,6 +31,7 @@ namespace ar {
         float GetMass() const { return Mass; }
 
         void Update(float dt) override;
+        void ResetGroundState() { IsOnGround = false; }
 
     private:
         void Integrate(float dt);

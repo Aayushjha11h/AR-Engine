@@ -75,9 +75,6 @@ namespace ar {
 
         // Reset force accumulator for next frame
         Force = glm::vec2(0.0f, 0.0f);
-
-        // Ground state is refreshed by Collision system each frame
-        IsOnGround = false;
     }
 
 } // namespace ar

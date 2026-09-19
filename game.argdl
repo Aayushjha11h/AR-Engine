@@ -1,57 +1,584 @@
 #Player Character
 {
-    x : 400
-    y : 100
-    size : 40
+    x : 100
+    y : 460
+    size : 32
     color : red
-    speed : 260
-    jump_force : 520
+    sprite : "assets/char.png"
+    speed : 320
+    jump_force : 400
     mass : 1
     gravity : on
-    friction : 0.3
+    friction : 0.4
     restitution : 0
     collider : box
 }
 
-#Ground Platform
+#Ground1 Platform
 {
     x : 400
-    y : 550
-    size : 700
+    y : 560
+    width : 800
+    height : 40
     color : green
     kinematic : on
     collider : box
 }
 
-#LeftPlat Platform
+#Ground2 Platform
 {
-    x : 180
-    y : 400
-    size : 120
+    x : 1000
+    y : 560
+    width : 200
+    height : 40
     color : green
     kinematic : on
     collider : box
 }
 
-#RightPlat Platform
+#Ground3 Platform
 {
-    x : 620
+    x : 1300
+    y : 560
+    width : 200
+    height : 40
+    color : green
+    kinematic : on
+    collider : box
+}
+
+#Ground4 Platform
+{
+    x : 1700
+    y : 560
+    width : 600
+    height : 40
+    color : green
+    kinematic : on
+    collider : box
+}
+
+#Ground5 Platform
+{
+    x : 2200
+    y : 560
+    width : 200
+    height : 40
+    color : green
+    kinematic : on
+    collider : box
+}
+
+#Ground6 Platform
+{
+    x : 2650
+    y : 560
+    width : 700
+    height : 40
+    color : green
+    kinematic : on
+    collider : box
+}
+
+#WallLeft Platform
+{
+    x : 20
     y : 300
-    size : 120
+    width : 40
+    height : 560
+    color : brown
+    kinematic : on
+    collider : box
+}
+
+#WallRight Platform
+{
+    x : 3000
+    y : 300
+    width : 40
+    height : 560
+    color : brown
+    kinematic : on
+    collider : box
+}
+
+#Pipe1 Platform
+{
+    x : 400
+    y : 500
+    width : 40
+    height : 80
     color : green
     kinematic : on
     collider : box
 }
 
-#Crate Item
+#Pipe2 Platform
+{
+    x : 650
+    y : 480
+    width : 40
+    height : 100
+    color : green
+    kinematic : on
+    collider : box
+}
+
+#Pipe3 Platform
+{
+    x : 1250
+    y : 500
+    width : 40
+    height : 80
+    color : green
+    kinematic : on
+    collider : box
+}
+
+#Pipe4 Platform
+{
+    x : 1650
+    y : 480
+    width : 40
+    height : 100
+    color : green
+    kinematic : on
+    collider : box
+}
+
+#Float1 Platform
+{
+    x : 550
+    y : 400
+    width : 120
+    height : 20
+    color : brown
+    kinematic : on
+    collider : box
+}
+
+#Float2 Platform
+{
+    x : 800
+    y : 340
+    width : 120
+    height : 20
+    color : brown
+    kinematic : on
+    collider : box
+}
+
+#Float3 Platform
+{
+    x : 1000
+    y : 400
+    width : 120
+    height : 20
+    color : brown
+    kinematic : on
+    collider : box
+}
+
+#Float4 Platform
+{
+    x : 1350
+    y : 340
+    width : 120
+    height : 20
+    color : brown
+    kinematic : on
+    collider : box
+}
+
+#Float5 Platform
+{
+    x : 1600
+    y : 400
+    width : 120
+    height : 20
+    color : brown
+    kinematic : on
+    collider : box
+}
+
+#Float6 Platform
+{
+    x : 1900
+    y : 340
+    width : 120
+    height : 20
+    color : brown
+    kinematic : on
+    collider : box
+}
+
+#Float7 Platform
+{
+    x : 2200
+    y : 400
+    width : 120
+    height : 20
+    color : brown
+    kinematic : on
+    collider : box
+}
+
+#Float8 Platform
+{
+    x : 2450
+    y : 340
+    width : 120
+    height : 20
+    color : brown
+    kinematic : on
+    collider : box
+}
+
+#Block1 Item
+{
+    x : 300
+    y : 420
+    size : 32
+    color : yellow
+    gravity : off
+    collider : box
+}
+
+#Block2 Item
 {
     x : 500
-    y : 80
-    size : 36
+    y : 320
+    size : 32
     color : yellow
-    mass : 0.8
+    gravity : off
+    collider : box
+}
+
+#Block3 Item
+{
+    x : 750
+    y : 260
+    size : 32
+    color : yellow
+    gravity : off
+    collider : box
+}
+
+#Block4 Item
+{
+    x : 1000
+    y : 320
+    size : 32
+    color : yellow
+    gravity : off
+    collider : box
+}
+
+#Step1 Platform
+{
+    x : 2700
+    y : 520
+    width : 40
+    height : 40
+    color : brown
+    kinematic : on
+    collider : box
+}
+
+#Step2 Platform
+{
+    x : 2740
+    y : 500
+    width : 40
+    height : 80
+    color : brown
+    kinematic : on
+    collider : box
+}
+
+#Step3 Platform
+{
+    x : 2780
+    y : 480
+    width : 40
+    height : 120
+    color : brown
+    kinematic : on
+    collider : box
+}
+
+#Step4 Platform
+{
+    x : 2820
+    y : 460
+    width : 40
+    height : 160
+    color : brown
+    kinematic : on
+    collider : box
+}
+
+#Step5 Platform
+{
+    x : 2860
+    y : 440
+    width : 40
+    height : 200
+    color : brown
+    kinematic : on
+    collider : box
+}
+
+#FlagBase Platform
+{
+    x : 2950
+    y : 540
+    width : 80
+    height : 40
+    color : yellow
+    kinematic : on
+    collider : box
+}
+
+#FlagPole Platform
+{
+    x : 2950
+    y : 390
+    width : 16
+    height : 300
+    color : yellow
+    kinematic : on
+    collider : box
+}
+
+#Coin1 Item
+{
+    x : 250
+    y : 480
+    size : 16
+    color : yellow
+    gravity : off
+    collider : box
+    trigger : on
+}
+
+#Coin2 Item
+{
+    x : 550
+    y : 360
+    size : 16
+    color : yellow
+    gravity : off
+    collider : box
+    trigger : on
+}
+
+#Coin3 Item
+{
+    x : 600
+    y : 360
+    size : 16
+    color : yellow
+    gravity : off
+    collider : box
+    trigger : on
+}
+
+#Coin4 Item
+{
+    x : 800
+    y : 300
+    size : 16
+    color : yellow
+    gravity : off
+    collider : box
+    trigger : on
+}
+
+#Coin5 Item
+{
+    x : 850
+    y : 300
+    size : 16
+    color : yellow
+    gravity : off
+    collider : box
+    trigger : on
+}
+
+#Coin6 Item
+{
+    x : 1000
+    y : 360
+    size : 16
+    color : yellow
+    gravity : off
+    collider : box
+    trigger : on
+}
+
+#Coin7 Item
+{
+    x : 1350
+    y : 300
+    size : 16
+    color : yellow
+    gravity : off
+    collider : box
+    trigger : on
+}
+
+#Coin8 Item
+{
+    x : 1400
+    y : 300
+    size : 16
+    color : yellow
+    gravity : off
+    collider : box
+    trigger : on
+}
+
+#Coin9 Item
+{
+    x : 1600
+    y : 360
+    size : 16
+    color : yellow
+    gravity : off
+    collider : box
+    trigger : on
+}
+
+#Coin10 Item
+{
+    x : 1900
+    y : 300
+    size : 16
+    color : yellow
+    gravity : off
+    collider : box
+    trigger : on
+}
+
+#Coin11 Item
+{
+    x : 2200
+    y : 360
+    size : 16
+    color : yellow
+    gravity : off
+    collider : box
+    trigger : on
+}
+
+#Coin12 Item
+{
+    x : 2900
+    y : 340
+    size : 16
+    color : yellow
+    gravity : off
+    collider : box
+    trigger : on
+}
+
+#Enemy1 Enemy
+{
+    x : 550
+    y : 500
+    size : 32
+    color : purple
+    mass : 1
+    gravity : on
+    friction : 0.5
+    collider : box
+}
+
+#Enemy2 Enemy
+{
+    x : 1050
+    y : 500
+    size : 32
+    color : purple
+    mass : 1
+    gravity : on
+    friction : 0.5
+    collider : box
+}
+
+#Enemy3 Enemy
+{
+    x : 1500
+    y : 500
+    size : 32
+    color : purple
+    mass : 1
+    gravity : on
+    friction : 0.5
+    collider : box
+}
+
+#Enemy4 Enemy
+{
+    x : 1950
+    y : 500
+    size : 32
+    color : purple
+    mass : 1
+    gravity : on
+    friction : 0.5
+    collider : box
+}
+
+#Enemy5 Enemy
+{
+    x : 2250
+    y : 500
+    size : 32
+    color : purple
+    mass : 1
+    gravity : on
+    friction : 0.5
+    collider : box
+}
+
+#Crate1 Item
+{
+    x : 900
+    y : 530
+    size : 28
+    color : orange
+    mass : 0.6
     gravity : on
     restitution : 0.1
+    friction : 0.5
+    collider : box
+}
+
+#Crate2 Item
+{
+    x : 1450
+    y : 530
+    size : 28
+    color : orange
+    mass : 0.6
+    gravity : on
+    restitution : 0.1
+    friction : 0.5
+    collider : box
+}
+
+#Crate3 Item
+{
+    x : 2100
+    y : 530
+    size : 28
+    color : orange
+    mass : 0.6
+    gravity : on
+    restitution : 0.1
+    friction : 0.5
     collider : box
 }
 
@@ -65,7 +592,27 @@ on d
     move right
 }
 
+on left
+{
+    move left
+}
+
+on right
+{
+    move right
+}
+
 on space
+{
+    jump
+}
+
+on up
+{
+    jump
+}
+
+on w
 {
     jump
 }

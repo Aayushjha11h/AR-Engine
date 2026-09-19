@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <algorithm>
 
 namespace ar {
 
@@ -9,8 +10,8 @@ namespace ar {
 
         void SetPosition(const glm::vec2& pos) { m_Position = pos; Update(); }
         void Move(const glm::vec2& delta) { m_Position += delta; Update(); }
-        void SetZoom(float z) { m_Zoom = z; Update(); }
-        void Zoom(float amount) { m_Zoom += amount; Update(); }
+        void SetZoom(float z) { m_Zoom = std::clamp(z, 0.1f, 10.0f); Update(); }
+        void Zoom(float amount) { m_Zoom = std::clamp(m_Zoom + amount, 0.1f, 10.0f); Update(); }
 
         void Follow(const glm::vec2& target, float smoothSpeed, float dt);
 

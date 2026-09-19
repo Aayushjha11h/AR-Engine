@@ -15,17 +15,13 @@ namespace ar {
         auto* transform = m_Owner->GetComponent<Transform>();
         if (!transform) return;
 
-        if (m_Texture) {
-            Sprite sprite;
-            sprite.Position = transform->Position;
-            sprite.Size = m_Size;
-            sprite.Color = m_Color;
-            sprite.Tex = m_Texture;
-            renderer->DrawSprite(sprite);
-        }
-        else {
-            renderer->DrawQuad(transform->Position, m_Size, m_Color);
-        }
+        Sprite sprite;
+        sprite.Position = transform->Position;
+        sprite.Size = m_Size * transform->Scale;
+        sprite.Rotation = transform->Rotation;
+        sprite.Color = m_Color;
+        sprite.Tex = m_Texture;
+        renderer->DrawSprite(sprite);
     }
 
 } // namespace ar

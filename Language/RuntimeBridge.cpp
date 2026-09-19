@@ -35,6 +35,9 @@ namespace ar {
     }
 
     void RuntimeBridge::Update(float dt) {
+        m_MovedHorizontalThisFrame = false;
+        m_MovedVerticalThisFrame = false;
+
         for (const auto& scriptEvent : interpreter.GetEvents()) {
             int scancode = StringToScancode(scriptEvent.trigger);
             if (scancode < 0) continue;
@@ -55,10 +58,11 @@ namespace ar {
         if (playerEntity) {
             auto* rb = playerEntity->GetComponent<RigidBody>();
             if (rb) {
-                bool leftHeld = input->IsKeyDown(SDL_SCANCODE_A);
-                bool rightHeld = input->IsKeyDown(SDL_SCANCODE_D);
-                if (!leftHeld && !rightHeld) {
+                if (!m_MovedHorizontalThisFrame) {
                     rb->Velocity.x = 0.0f;
+                }
+                if (!rb->UseGravity && !m_MovedVerticalThisFrame) {
+                    rb->Velocity.y = 0.0f;
                 }
             }
         }
@@ -116,6 +120,8 @@ namespace ar {
             entity->AddComponent<Transform>();
 
             auto* sr = entity->AddComponent<SpriteRenderer>(nullptr);
+            float width = 64.0f;
+            float height = 64.0f;
             {
                 auto itColor = scriptObj.properties.find("color");
                 if (itColor != scriptObj.properties.end()) {
@@ -126,9 +132,18 @@ namespace ar {
                 }
 
                 auto itSize = scriptObj.properties.find("size");
-                float size = (itSize != scriptObj.properties.end())
-                    ? ParseFloat(itSize->second, 64.0f) : 64.0f;
-                sr->SetSize(glm::vec2(size, size));
+                if (itSize != scriptObj.properties.end()) {
+                    width = height = ParseFloat(itSize->second, 64.0f);
+                }
+                auto itW = scriptObj.properties.find("width");
+                if (itW == scriptObj.properties.end()) itW = scriptObj.properties.find("w");
+                if (itW != scriptObj.properties.end()) width = ParseFloat(itW->second, width);
+
+                auto itH = scriptObj.properties.find("height");
+                if (itH == scriptObj.properties.end()) itH = scriptObj.properties.find("h");
+                if (itH != scriptObj.properties.end()) height = ParseFloat(itH->second, height);
+
+                sr->SetSize(glm::vec2(width, height));
             }
 
             auto itSprite = scriptObj.properties.find("sprite");
@@ -175,16 +190,13 @@ namespace ar {
 
             auto itCollider = scriptObj.properties.find("collider");
             bool wantsCollider = (itCollider != scriptObj.properties.end() && itCollider->second == "box")
-                || scriptObj.properties.count("size");
+                || scriptObj.properties.count("size")
+                || scriptObj.properties.count("width")
+                || scriptObj.properties.count("height");
 
             if (wantsCollider) {
                 auto* col = entity->AddComponent<Collider>();
-
-                auto itSize = scriptObj.properties.find("size");
-                if (itSize != scriptObj.properties.end()) {
-                    float s = ParseFloat(itSize->second, 1.0f);
-                    col->Size = glm::vec2(s, s);
-                }
+                col->Size = glm::vec2(width, height);
 
                 auto itLayer = scriptObj.properties.find("layer");
                 if (itLayer != scriptObj.properties.end()) col->Layer = static_cast<int>(ParseFloat(itLayer->second, 1.0f));
@@ -302,7 +314,8 @@ namespace ar {
             if (it != playerObj->properties.end()) jumpForce = ParseFloat(it->second, 500.0f);
         }
 
-        rb->ApplyImpulse(glm::vec2(0.0f, jumpForce));
+        rb->Velocity.y = -jumpForce;
+        rb->IsOnGround = false;
     }
 
     void RuntimeBridge::CmdMove(const std::string& direction) {
@@ -320,10 +333,22 @@ namespace ar {
             if (it != playerObj->properties.end()) speed = ParseFloat(it->second, 200.0f);
         }
 
-        if (direction == "left")       rb->Velocity.x = -speed;
-        else if (direction == "right") rb->Velocity.x = speed;
-        else if (direction == "up")    rb->Velocity.y = -speed;
-        else if (direction == "down")  rb->Velocity.y = speed;
+        if (direction == "left") {
+            rb->Velocity.x = -speed;
+            m_MovedHorizontalThisFrame = true;
+        }
+        else if (direction == "right") {
+            rb->Velocity.x = speed;
+            m_MovedHorizontalThisFrame = true;
+        }
+        else if (direction == "up") {
+            rb->Velocity.y = -speed;
+            m_MovedVerticalThisFrame = true;
+        }
+        else if (direction == "down") {
+            rb->Velocity.y = speed;
+            m_MovedVerticalThisFrame = true;
+        }
     }
 
     void RuntimeBridge::CmdGravity(bool enabled) {

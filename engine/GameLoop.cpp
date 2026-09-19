@@ -108,9 +108,9 @@ namespace ar {
             m_Window->PollEvents(*m_Input);
 
 
-            m_Scene->Update(dt);
-
             OnUpdate(dt);
+
+            m_Scene->Update(dt);
 
 
 

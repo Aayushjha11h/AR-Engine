@@ -5,3 +5,5 @@ C:\Users\aayus\source\repos\ARengine\x64\Debug\vorbisfile.dll
 C:\Users\aayus\source\repos\ARengine\x64\Debug\vorbis.dll
 C:\Users\aayus\source\repos\ARengine\x64\Debug\ogg.dll
 C:\Users\aayus\source\repos\ARengine\x64\Debug\wavpackdll.dll
+C:\Users\aayus\source\repos\ARengine\ARengine\x64\Debug\ARengine.exe
+C:\Users\aayus\source\repos\ARengine\ARengine\x64\Debug\ARengine.vcxproj.Up2Date

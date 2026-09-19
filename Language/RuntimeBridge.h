@@ -36,6 +36,8 @@ namespace ar {
         std::string error;
         std::unordered_map<std::string, std::unique_ptr<Texture>> textures;
         std::unordered_map<std::string, std::unique_ptr<Sound>> sounds;
+        bool m_MovedHorizontalThisFrame = false;
+        bool m_MovedVerticalThisFrame = false;
 
         Texture* GetOrLoadTexture(const std::string& path);
         Sound* GetOrLoadSound(const std::string& name);

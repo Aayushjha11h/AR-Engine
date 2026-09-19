@@ -16,4 +16,4 @@ This project uses Visual Studio and can be built using the provided `.vcxproj` f
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the My License.

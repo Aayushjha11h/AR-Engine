@@ -39,11 +39,11 @@ void main() {
 
     void Renderer::CreateQuad() {
         float verts[] = {
-            // pos      // tex
-            0.0f, 0.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 1.0f, 1.0f,
-            0.0f, 1.0f, 0.0f, 1.0f
+            // pos          // tex
+            -0.5f, -0.5f,   0.0f, 0.0f,
+             0.5f, -0.5f,   1.0f, 0.0f,
+             0.5f,  0.5f,   1.0f, 1.0f,
+            -0.5f,  0.5f,   0.0f, 1.0f
         };
         unsigned int idx[] = { 0, 1, 2, 0, 2, 3 };
 
@@ -91,6 +91,9 @@ void main() {
     void Renderer::DrawSprite(const Sprite& sprite) {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(sprite.Position, 0.0f));
+        if (sprite.Rotation != 0.0f) {
+            model = glm::rotate(model, glm::radians(sprite.Rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+        }
         model = glm::scale(model, glm::vec3(sprite.Size, 1.0f));
 
         m_Shader.Use();
