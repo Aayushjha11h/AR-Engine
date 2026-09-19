@@ -1,0 +1,71 @@
+#Player Character
+{
+    x : 400
+    y : 100
+    size : 40
+    color : red
+    speed : 260
+    jump_force : 520
+    mass : 1
+    gravity : on
+    friction : 0.3
+    restitution : 0
+    collider : box
+}
+
+#Ground Platform
+{
+    x : 400
+    y : 550
+    size : 700
+    color : green
+    kinematic : on
+    collider : box
+}
+
+#LeftPlat Platform
+{
+    x : 180
+    y : 400
+    size : 120
+    color : green
+    kinematic : on
+    collider : box
+}
+
+#RightPlat Platform
+{
+    x : 620
+    y : 300
+    size : 120
+    color : green
+    kinematic : on
+    collider : box
+}
+
+#Crate Item
+{
+    x : 500
+    y : 80
+    size : 36
+    color : yellow
+    mass : 0.8
+    gravity : on
+    restitution : 0.1
+    collider : box
+}
+
+on a
+{
+    move left
+}
+
+on d
+{
+    move right
+}
+
+on space
+{
+    jump
+}

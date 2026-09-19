@@ -1,0 +1,7 @@
+C:\Users\aayus\source\repos\ARengine\x64\Debug\glew32d.dll
+C:\Users\aayus\source\repos\ARengine\x64\Debug\SDL2d.dll
+C:\Users\aayus\source\repos\ARengine\x64\Debug\SDL2_mixerd.dll
+C:\Users\aayus\source\repos\ARengine\x64\Debug\vorbisfile.dll
+C:\Users\aayus\source\repos\ARengine\x64\Debug\vorbis.dll
+C:\Users\aayus\source\repos\ARengine\x64\Debug\ogg.dll
+C:\Users\aayus\source\repos\ARengine\x64\Debug\wavpackdll.dll
