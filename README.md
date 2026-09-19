@@ -1,3 +1,7 @@
+<img width="1439" height="758" alt="Screenshot 2026-09-19 170227" src="https://github.com/user-attachments/assets/b785d407-826c-4ebd-b2ca-b61df55d4289" />
+<img width="1003" height="775" alt="Screenshot 2026-09-19 170157" src="https://github.com/user-attachments/assets/555b22e7-fa41-4685-b74a-c46ec03931ea" />
+<img width="1004" height="789" alt="Screenshot 2026-09-19 170137" src="https://github.com/user-attachments/assets/29ce6b08-fc85-4f0c-8f9a-83a9d1811c21" />
+<img width="992" height="764" alt="Screenshot 2026-09-19 163744" src="https://github.com/user-attachments/assets/e0f8ccad-a1a1-4496-84ce-8c9d7ddaeba6" />
 # AR-Engine
 
 A custom 2D game engine built with C++ and OpenGL, featuring a custom scripting language for game logic definition. The engine includes a complete physics system, rendering pipeline, and a demo Mario-style platformer game.
