@@ -253,7 +253,7 @@ on space
 
 ## License
 
-This project is licensed under the My License.
+This project is licensed under the [MIT License](LICENSE).
 
 ## Credits
 
