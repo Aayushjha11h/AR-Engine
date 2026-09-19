@@ -110,9 +110,8 @@ namespace ar {
 
             OnUpdate(dt);
 
-            m_Scene->Update(dt);
-
-
+            if (m_State == GameState::Playing)
+                m_Scene->Update(dt);
 
             m_Renderer->Clear();
 
@@ -120,9 +119,8 @@ namespace ar {
                 m_Camera->GetViewProjection()
             );
 
-
+            OnPreRender();
             m_Scene->Render(m_Renderer);
-
             OnRender();
 
 

@@ -1,4 +1,5 @@
 C:\Users\aayus\source\repos\ARengine\ARengine\engine\Audio.cpp;C:\Users\aayus\source\repos\ARengine\ARengine\x64\Debug\Audio.obj
+C:\Users\aayus\source\repos\ARengine\ARengine\engine\BossAI.cpp;C:\Users\aayus\source\repos\ARengine\ARengine\x64\Debug\BossAI.obj
 C:\Users\aayus\source\repos\ARengine\ARengine\engine\Camera.cpp;C:\Users\aayus\source\repos\ARengine\ARengine\x64\Debug\Camera.obj
 C:\Users\aayus\source\repos\ARengine\ARengine\engine\Collision.cpp;C:\Users\aayus\source\repos\ARengine\ARengine\x64\Debug\Collision.obj
 C:\Users\aayus\source\repos\ARengine\ARengine\engine\Component.cpp;C:\Users\aayus\source\repos\ARengine\ARengine\x64\Debug\Component.obj
@@ -6,6 +7,7 @@ C:\Users\aayus\source\repos\ARengine\ARengine\engine\Entity.cpp;C:\Users\aayus\s
 C:\Users\aayus\source\repos\ARengine\ARengine\engine\GameLoop.cpp;C:\Users\aayus\source\repos\ARengine\ARengine\x64\Debug\GameLoop.obj
 C:\Users\aayus\source\repos\ARengine\ARengine\engine\Gravity.cpp;C:\Users\aayus\source\repos\ARengine\ARengine\x64\Debug\Gravity.obj
 C:\Users\aayus\source\repos\ARengine\ARengine\engine\Input.cpp;C:\Users\aayus\source\repos\ARengine\ARengine\x64\Debug\Input.obj
+C:\Users\aayus\source\repos\ARengine\ARengine\engine\PatrolAI.cpp;C:\Users\aayus\source\repos\ARengine\ARengine\x64\Debug\PatrolAI.obj
 C:\Users\aayus\source\repos\ARengine\ARengine\engine\Renderer.cpp;C:\Users\aayus\source\repos\ARengine\ARengine\x64\Debug\Renderer.obj
 C:\Users\aayus\source\repos\ARengine\ARengine\engine\RigidBody.cpp;C:\Users\aayus\source\repos\ARengine\ARengine\x64\Debug\RigidBody.obj
 C:\Users\aayus\source\repos\ARengine\ARengine\engine\Scene.cpp;C:\Users\aayus\source\repos\ARengine\ARengine\x64\Debug\Scene.obj

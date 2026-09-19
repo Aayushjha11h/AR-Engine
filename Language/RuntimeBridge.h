@@ -23,6 +23,11 @@ namespace ar {
         Entity* GetEntity(const std::string& name) const;
         Entity* GetPlayer() const { return playerEntity; }
         const std::string& GetError() const { return error; }
+        int GetCoinsCollected() const { return m_CoinsCollected; }
+        bool IsVictoryTriggered() const { return m_VictoryTriggered; }
+        bool IsPlayerDead() const { return m_PlayerDead; }
+        void ClearGameplayFlags() { m_VictoryTriggered = false; m_PlayerDead = false; }
+        Texture* GetBackgroundTexture() const { return m_BackgroundTexture; }
         std::string SoundPrefix = "sounds/";
         std::string SoundExtension = ".wav";
 
@@ -38,10 +43,21 @@ namespace ar {
         std::unordered_map<std::string, std::unique_ptr<Sound>> sounds;
         bool m_MovedHorizontalThisFrame = false;
         bool m_MovedVerticalThisFrame = false;
+        int m_CoinsCollected = 0;
+        bool m_VictoryTriggered = false;
+        bool m_PlayerDead = false;
+        float m_PlayerInvulnTime = 0.0f;
+        Texture* m_BackgroundTexture = nullptr;
 
         Texture* GetOrLoadTexture(const std::string& path);
         Sound* GetOrLoadSound(const std::string& name);
         bool BuildObjects();
+        void WireGameplayCallbacks();
+        void HandlePlayerTrigger(Entity* player, Entity* other);
+        void HandlePlayerCollision(Entity* player, Entity* other, const CollisionManifold& m);
+        static bool IsCoinEntity(const Entity* e);
+        static bool IsEnemyEntity(const Entity* e);
+        static bool IsPlayerEntity(const Entity* e);
         void ExecuteCommands(const std::vector<std::string>& commands);
         void DispatchCommand(const std::vector<std::string>& commands, size_t& index);
         void CmdJump();

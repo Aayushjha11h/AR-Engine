@@ -33,10 +33,11 @@ namespace ar {
         // Integrate positions and velocities
         for (auto& e : m_Entities) e->Update(dt);
 
-        // Check collisions and resolve overlaps + set ground state
+        Collision::BeginTriggerFrame();
         for (size_t i = 0; i < m_Entities.size(); ++i)
             for (size_t j = i + 1; j < m_Entities.size(); ++j)
                 Collision::CheckAndResolve(m_Entities[i].get(), m_Entities[j].get());
+        Collision::EndTriggerFrame();
         if (!m_ToDestroy.empty()) {
             m_Entities.erase(
                 std::remove_if(m_Entities.begin(), m_Entities.end(),
@@ -48,7 +49,22 @@ namespace ar {
     }
 
     void Scene::Render(Renderer* renderer) {
-        for (auto& e : m_Entities) e->Render(renderer);
+        struct DrawItem {
+            int layer;
+            Entity* entity;
+        };
+        std::vector<DrawItem> order;
+        order.reserve(m_Entities.size());
+        for (auto& e : m_Entities) {
+            if (!e->Active) continue;
+            int layer = static_cast<int>(RenderLayer::Main);
+            if (auto* sr = e->GetComponent<SpriteRenderer>())
+                layer = static_cast<int>(sr->GetLayer());
+            order.push_back({ layer, e.get() });
+        }
+        std::sort(order.begin(), order.end(),
+            [](const DrawItem& a, const DrawItem& b) { return a.layer < b.layer; });
+        for (const auto& item : order) item.entity->Render(renderer);
     }
 
     Entity* Scene::FindEntity(const std::string& name) {

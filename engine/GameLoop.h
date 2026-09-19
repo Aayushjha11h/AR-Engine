@@ -3,6 +3,13 @@
 
 namespace ar {
 
+    enum class GameState {
+        TitleScreen,
+        Playing,
+        GameOver,
+        Victory
+    };
+
     class Window;
     class Timer;
     class Renderer;
@@ -22,8 +29,12 @@ namespace ar {
 
         virtual void OnInit() {}
         virtual void OnUpdate(float dt) {}
+        virtual void OnPreRender() {}
         virtual void OnRender() {}
         virtual void OnShutdown() {}
+
+        GameState GetState() const { return m_State; }
+        void SetState(GameState state) { m_State = state; }
 
         Window* GetWindow() const { return m_Window; }
         Timer* GetTimer() const { return m_Timer; }
@@ -46,6 +57,7 @@ namespace ar {
 
         bool m_Running;
         uint32_t m_TargetFPS;
+        GameState m_State = GameState::TitleScreen;
     };
 
 } // namespace ar

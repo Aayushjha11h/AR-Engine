@@ -114,6 +114,32 @@ void main() {
         glBindVertexArray(0);
     }
 
+    void Renderer::DrawParallaxBackground(const glm::vec2& cameraPos, float viewWidth, float viewHeight,
+        Texture* texture, float parallaxFactor, const glm::vec4& fallbackColor) {
+        float parallaxX = cameraPos.x * parallaxFactor;
+        glm::vec2 center = { cameraPos.x - parallaxX, cameraPos.y };
+        glm::vec2 size = { viewWidth * 1.5f, viewHeight * 1.2f };
+
+        if (texture && texture->GetID()) {
+            Sprite s;
+            s.Position = center;
+            s.Size = size;
+            s.Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+            s.Tex = texture;
+            DrawSprite(s);
+        }
+        else {
+            DrawQuad(center, size, fallbackColor);
+            DrawQuad({ center.x, center.y + viewHeight * 0.35f },
+                { size.x, size.y * 0.25f }, { 0.15f, 0.45f, 0.85f, 1.0f });
+        }
+    }
+
+    void Renderer::DrawScreenOverlay(const glm::vec2& cameraPos, float viewWidth, float viewHeight,
+        const glm::vec4& color) {
+        DrawQuad(cameraPos, { viewWidth, viewHeight }, color);
+    }
+
     void Renderer::EndScene() {}
 
 } // namespace ar

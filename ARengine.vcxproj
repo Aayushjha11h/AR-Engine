@@ -142,6 +142,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="engine\Audio.cpp" />
+    <ClCompile Include="engine\BossAI.cpp" />
     <ClCompile Include="engine\Camera.cpp" />
     <ClCompile Include="engine\Collision.cpp" />
     <ClCompile Include="engine\Component.cpp" />
@@ -149,6 +150,7 @@
     <ClCompile Include="engine\GameLoop.cpp" />
     <ClCompile Include="engine\Gravity.cpp" />
     <ClCompile Include="engine\Input.cpp" />
+    <ClCompile Include="engine\PatrolAI.cpp" />
     <ClCompile Include="engine\Renderer.cpp" />
     <ClCompile Include="engine\RigidBody.cpp" />
     <ClCompile Include="engine\Scene.cpp" />
@@ -166,6 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\Audio.h" />
+    <ClInclude Include="engine\BossAI.h" />
     <ClInclude Include="engine\Camera.h" />
     <ClInclude Include="engine\Collision.h" />
     <ClInclude Include="engine\Component.h" />
@@ -173,6 +176,7 @@
     <ClInclude Include="engine\GameLoop.h" />
     <ClInclude Include="engine\Gravity.h" />
     <ClInclude Include="engine\Input.h" />
+    <ClInclude Include="engine\PatrolAI.h" />
     <ClInclude Include="engine\Renderer.h" />
     <ClInclude Include="engine\RigidBody.h" />
     <ClInclude Include="engine\Scene.h" />

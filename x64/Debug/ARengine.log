@@ -1,10 +1,2 @@
-﻿  RuntimeBridge.cpp
-  Collision.cpp
-  Component.cpp
-  Entity.cpp
-  GameLoop.cpp
-  RigidBody.cpp
-  Scene.cpp
-  main.cpp
-  Generating Code...
+﻿  Retrying operation on file "x64\Debug\ARengine.tlog\ARengine.lastbuildstate" (attempt 2 of 3). Reason: The process cannot access the file because it is being used by another process.
   ARengine.vcxproj -> C:\Users\aayus\source\repos\ARengine\x64\Debug\ARengine.exe

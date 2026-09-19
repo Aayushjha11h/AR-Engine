@@ -1,11 +1,24 @@
 #include "Collision.h"
 #include <cmath>
 #include <algorithm>
+#include <unordered_set>
 #include "Entity.h"
 #include "Component.h" // Transform
 #include "RigidBody.h"
 
 namespace ar {
+
+    namespace {
+        uint64_t PairKey(Entity* a, Entity* b) {
+            uintptr_t pa = reinterpret_cast<uintptr_t>(a);
+            uintptr_t pb = reinterpret_cast<uintptr_t>(b);
+            if (pa > pb) std::swap(pa, pb);
+            return (static_cast<uint64_t>(pa) << 32) | static_cast<uint64_t>(pb);
+        }
+
+        std::unordered_set<uint64_t> s_ActiveTriggerPairs;
+        std::unordered_set<uint64_t> s_ThisFrameTriggerPairs;
+    }
 
     AABB::AABB(const glm::vec2& min, const glm::vec2& max)
         : Min(min), Max(max) {
@@ -153,6 +166,25 @@ namespace ar {
         if (rbb) rbb->ApplyImpulse(frictionImpulse);
     }
 
+    void Collision::BeginTriggerFrame() {
+        s_ThisFrameTriggerPairs.clear();
+    }
+
+    void Collision::EndTriggerFrame() {
+        s_ActiveTriggerPairs = std::move(s_ThisFrameTriggerPairs);
+    }
+
+    static void DispatchTriggers(Entity* a, Entity* b) {
+        uint64_t key = PairKey(a, b);
+        s_ThisFrameTriggerPairs.insert(key);
+        if (s_ActiveTriggerPairs.count(key)) return;
+
+        Collider* ca = a->GetComponent<Collider>();
+        Collider* cb = b->GetComponent<Collider>();
+        if (ca && ca->OnTriggerEnter) ca->OnTriggerEnter(a, b);
+        if (cb && cb->OnTriggerEnter) cb->OnTriggerEnter(b, a);
+    }
+
     void Collision::CheckAndResolve(Entity* a, Entity* b) {
         if (!a || !b || a == b) return;
         if (!a->Active || !b->Active) return;
@@ -161,10 +193,24 @@ namespace ar {
         Collider* cb = b->GetComponent<Collider>();
         if (!ca || !cb) return;
 
+        if (!(ca->Mask & cb->Layer) || !(cb->Mask & ca->Layer)) return;
+
         CollisionManifold m;
-        if (AABBvsAABB(ca->GetWorldBounds(), cb->GetWorldBounds(), m)) {
-            Resolve(a, b, m);
+        if (!AABBvsAABB(ca->GetWorldBounds(), cb->GetWorldBounds(), m)) return;
+
+        if (ca->IsTrigger || cb->IsTrigger) {
+            DispatchTriggers(a, b);
+            return;
         }
+
+        if (ca->OnCollision) ca->OnCollision(a, b, m);
+        if (cb->OnCollision) {
+            CollisionManifold mb = m;
+            mb.Normal = -m.Normal;
+            cb->OnCollision(b, a, mb);
+        }
+
+        Resolve(a, b, m);
     }
 
 } // namespace ar

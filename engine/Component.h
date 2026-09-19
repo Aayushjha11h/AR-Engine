@@ -23,6 +23,13 @@ namespace ar {
         glm::vec2 Scale = { 1,1 };
     };
 
+    enum class RenderLayer {
+        Background = 0,
+        Scenery = 1,
+        Main = 2,
+        Foreground = 3
+    };
+
     class SpriteRenderer : public Component {
     public:
         SpriteRenderer(Texture* tex = nullptr, const glm::vec4& color = { 1,1,1,1 });
@@ -30,10 +37,14 @@ namespace ar {
         void SetTexture(Texture* tex) { m_Texture = tex; }
         void SetColor(const glm::vec4& c) { m_Color = c; }
         void SetSize(const glm::vec2& s) { m_Size = s; }
+        void SetLayer(RenderLayer layer) { m_Layer = layer; }
+        RenderLayer GetLayer() const { return m_Layer; }
+        bool SkipCameraParallax = false;
     private:
         Texture* m_Texture;
         glm::vec4 m_Color;
         glm::vec2 m_Size;
+        RenderLayer m_Layer = RenderLayer::Main;
     };
 
 } // namespace ar

@@ -1,4 +1,6 @@
 #include "RuntimeBridge.h"
+#include "../engine/PatrolAI.h"
+#include "../engine/BossAI.h"
 #include <SDL2/SDL.h>
 #include <iostream>
 
@@ -9,11 +11,17 @@ namespace ar {
     }
 
     bool RuntimeBridge::Load(const std::string& argdlSource) {
+        scene->Clear();
         entities.clear();
         playerEntity = nullptr;
         textures.clear();
         sounds.clear();
         error.clear();
+        m_CoinsCollected = 0;
+        m_VictoryTriggered = false;
+        m_PlayerDead = false;
+        m_PlayerInvulnTime = 0.0f;
+        m_BackgroundTexture = nullptr;
 
         Lexer lexer(argdlSource);
         Parser parser(lexer);
@@ -31,12 +39,27 @@ namespace ar {
             << interpreter.GetObjects().size() << " script objects\n";
 
         if (!BuildObjects()) return false;
+        WireGameplayCallbacks();
         return true;
     }
 
     void RuntimeBridge::Update(float dt) {
         m_MovedHorizontalThisFrame = false;
         m_MovedVerticalThisFrame = false;
+
+        if (m_PlayerInvulnTime > 0.0f) {
+            m_PlayerInvulnTime -= dt;
+            if (playerEntity) {
+                if (auto* sr = playerEntity->GetComponent<SpriteRenderer>()) {
+                    bool blink = static_cast<int>(m_PlayerInvulnTime * 12.0f) % 2 == 0;
+                    sr->SetColor(blink ? glm::vec4(1.0f, 0.5f, 0.5f, 0.6f) : glm::vec4(1.0f, 0.2f, 0.2f, 1.0f));
+                }
+            }
+        }
+        else if (playerEntity) {
+            if (auto* sr = playerEntity->GetComponent<SpriteRenderer>())
+                sr->SetColor({ 1.0f, 0.2f, 0.2f, 1.0f });
+        }
 
         for (const auto& scriptEvent : interpreter.GetEvents()) {
             int scancode = StringToScancode(scriptEvent.trigger);
@@ -152,6 +175,23 @@ namespace ar {
                 if (tex) sr->SetTexture(tex);
             }
 
+            if (scriptObj.type == "Background") {
+                sr->SetLayer(RenderLayer::Background);
+                sr->SkipCameraParallax = true;
+                auto itBg = scriptObj.properties.find("sprite");
+                if (itBg != scriptObj.properties.end())
+                    m_BackgroundTexture = GetOrLoadTexture(itBg->second);
+            }
+
+            auto itLayer = scriptObj.properties.find("layer");
+            if (itLayer != scriptObj.properties.end()) {
+                const std::string& layerName = itLayer->second;
+                if (layerName == "background") sr->SetLayer(RenderLayer::Background);
+                else if (layerName == "scenery") sr->SetLayer(RenderLayer::Scenery);
+                else if (layerName == "foreground") sr->SetLayer(RenderLayer::Foreground);
+                else sr->SetLayer(RenderLayer::Main);
+            }
+
             auto itGravity = scriptObj.properties.find("gravity");
             bool wantsGravity = (itGravity != scriptObj.properties.end() && ParseBool(itGravity->second));
 
@@ -188,11 +228,16 @@ namespace ar {
                 if (itKinematic != scriptObj.properties.end()) rb->IsKinematic = ParseBool(itKinematic->second, false);
             }
 
+            auto itSkipCollision = scriptObj.properties.find("skip_collision");
+            bool skipCollision = (itSkipCollision != scriptObj.properties.end() && ParseBool(itSkipCollision->second, false));
+
             auto itCollider = scriptObj.properties.find("collider");
-            bool wantsCollider = (itCollider != scriptObj.properties.end() && itCollider->second == "box")
+            bool colliderExplicitOff = (itCollider != scriptObj.properties.end() && itCollider->second != "box");
+            bool wantsCollider = !skipCollision && !colliderExplicitOff &&
+                ((itCollider != scriptObj.properties.end() && itCollider->second == "box")
                 || scriptObj.properties.count("size")
                 || scriptObj.properties.count("width")
-                || scriptObj.properties.count("height");
+                || scriptObj.properties.count("height"));
 
             if (wantsCollider) {
                 auto* col = entity->AddComponent<Collider>();
@@ -206,6 +251,40 @@ namespace ar {
 
                 auto itTrigger = scriptObj.properties.find("trigger");
                 if (itTrigger != scriptObj.properties.end()) col->IsTrigger = ParseBool(itTrigger->second, false);
+
+                if (scriptObj.type == "Item" && scriptObj.name.rfind("Coin", 0) == 0)
+                    col->IsTrigger = true;
+            }
+
+            if (scriptObj.type == "Enemy") {
+                auto itPatrolMin = scriptObj.properties.find("patrol_min");
+                auto itPatrolMax = scriptObj.properties.find("patrol_max");
+                if (itPatrolMin != scriptObj.properties.end() && itPatrolMax != scriptObj.properties.end()) {
+                    auto* patrol = entity->AddComponent<PatrolAI>();
+                    patrol->MinX = ParseFloat(itPatrolMin->second, 0.0f);
+                    patrol->MaxX = ParseFloat(itPatrolMax->second, 0.0f);
+                    auto itPatrolSpeed = scriptObj.properties.find("patrol_speed");
+                    if (itPatrolSpeed != scriptObj.properties.end())
+                        patrol->Speed = ParseFloat(itPatrolSpeed->second, patrol->Speed);
+                }
+                else {
+                    auto* patrol = entity->AddComponent<PatrolAI>();
+                    auto* t = entity->GetComponent<Transform>();
+                    float cx = t ? t->Position.x : 0.0f;
+                    patrol->MinX = cx - 120.0f;
+                    patrol->MaxX = cx + 120.0f;
+                }
+
+                auto itBoss = scriptObj.properties.find("boss");
+                if (itBoss != scriptObj.properties.end() && ParseBool(itBoss->second, false)) {
+                    auto* boss = entity->AddComponent<BossAI>();
+                    auto itHp = scriptObj.properties.find("hp");
+                    if (itHp != scriptObj.properties.end()) {
+                        boss->Health = static_cast<int>(ParseFloat(itHp->second, 3.0f));
+                        boss->MaxHealth = boss->Health;
+                    }
+                    boss->PlayerTarget = playerEntity;
+                }
             }
 
             auto* transform = entity->GetComponent<Transform>();
@@ -225,7 +304,96 @@ namespace ar {
             playerEntity = entities.begin()->second;
         }
 
+        for (auto& [name, ent] : entities) {
+            if (auto* boss = ent->GetComponent<BossAI>())
+                boss->PlayerTarget = playerEntity;
+        }
+
         return true;
+    }
+
+    bool RuntimeBridge::IsPlayerEntity(const Entity* e) {
+        return e && (e->Name == "Player" || e->Tag == "Character");
+    }
+
+    bool RuntimeBridge::IsCoinEntity(const Entity* e) {
+        if (!e) return false;
+        if (e->Tag == "Coin") return true;
+        return e->Tag == "Item" && e->Name.rfind("Coin", 0) == 0;
+    }
+
+    bool RuntimeBridge::IsEnemyEntity(const Entity* e) {
+        return e && e->Tag == "Enemy";
+    }
+
+    void RuntimeBridge::WireGameplayCallbacks() {
+        if (!playerEntity) return;
+        auto* col = playerEntity->GetComponent<Collider>();
+        if (!col) return;
+
+        col->OnTriggerEnter = [this](Entity* self, Entity* other) {
+            HandlePlayerTrigger(self, other);
+        };
+        col->OnCollision = [this](Entity* self, Entity* other, const CollisionManifold& m) {
+            HandlePlayerCollision(self, other, m);
+        };
+    }
+
+    void RuntimeBridge::HandlePlayerTrigger(Entity* player, Entity* other) {
+        if (!player || !other || m_PlayerDead || m_VictoryTriggered) return;
+
+        if (IsCoinEntity(other)) {
+            ++m_CoinsCollected;
+            CmdPlay("coin");
+            scene->DestroyEntity(other);
+            return;
+        }
+
+        if (other->Name == "FlagPole" || other->Name == "FlagBase") {
+            m_VictoryTriggered = true;
+            CmdPlay("coin");
+        }
+    }
+
+    void RuntimeBridge::HandlePlayerCollision(Entity* player, Entity* other, const CollisionManifold& m) {
+        if (!player || !other || m_PlayerDead || m_VictoryTriggered) return;
+
+        if (other->Name == "FlagPole") {
+            m_VictoryTriggered = true;
+            CmdPlay("coin");
+            return;
+        }
+
+        if (!IsEnemyEntity(other)) return;
+        if (m_PlayerInvulnTime > 0.0f) return;
+
+        auto* playerRb = player->GetComponent<RigidBody>();
+        if (!playerRb) return;
+
+        const bool stomp = m.Normal.y > 0.5f && playerRb->Velocity.y > 0.0f;
+        if (stomp) {
+            if (auto* boss = other->GetComponent<BossAI>()) {
+                if (boss->TakeStompDamage()) {
+                    playerRb->Velocity.y = -360.0f;
+                    playerRb->IsOnGround = false;
+                    CmdPlay("coin");
+                    if (boss->IsDefeated()) {
+                        scene->DestroyEntity(other);
+                        m_VictoryTriggered = true;
+                    }
+                }
+                return;
+            }
+
+            playerRb->Velocity.y = -360.0f;
+            playerRb->IsOnGround = false;
+            scene->DestroyEntity(other);
+            CmdPlay("coin");
+            return;
+        }
+
+        m_PlayerDead = true;
+        CmdPlay("coin");
     }
 
     // -------------------------------------------------------------------

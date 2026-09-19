@@ -16,6 +16,10 @@ namespace ar {
 
         void DrawQuad(const glm::vec2& pos, const glm::vec2& size, const glm::vec4& color);
         void DrawSprite(const Sprite& sprite);
+        void DrawParallaxBackground(const glm::vec2& cameraPos, float viewWidth, float viewHeight,
+            Texture* texture, float parallaxFactor, const glm::vec4& fallbackColor);
+        void DrawScreenOverlay(const glm::vec2& cameraPos, float viewWidth, float viewHeight,
+            const glm::vec4& color);
 
         void Clear();
         void SetClearColor(const glm::vec4& c) { m_ClearColor = c; }

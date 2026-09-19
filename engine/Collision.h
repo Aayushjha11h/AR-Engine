@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <functional>
 #include "Component.h"
 
 namespace ar {
@@ -23,6 +24,9 @@ namespace ar {
         float Penetration = 0.0f;
     };
 
+    using CollisionCallback = std::function<void(Entity* self, Entity* other, const CollisionManifold& m)>;
+    using TriggerCallback = std::function<void(Entity* self, Entity* other)>;
+
     class Collider : public Component {
     public:
         glm::vec2 Offset = { 0.0f, 0.0f };
@@ -30,6 +34,9 @@ namespace ar {
         bool IsTrigger = false;
         int Layer = 1;          // what layer this collider lives on
         int Mask = ~0;          // layers it can collide with
+
+        CollisionCallback OnCollision;
+        TriggerCallback OnTriggerEnter;
 
         AABB GetWorldBounds() const;
     };
@@ -44,6 +51,9 @@ namespace ar {
 
         // Convenience: bounds check + layer mask + resolve in one call
         void CheckAndResolve(Entity* a, Entity* b);
+
+        void BeginTriggerFrame();
+        void EndTriggerFrame();
 
     } // namespace Collision
 
