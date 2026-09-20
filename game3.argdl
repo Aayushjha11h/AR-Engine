@@ -1,0 +1,552 @@
+#Background Background
+{
+    x : 1000
+    y : 300
+    width : 2200
+    height : 800
+    sprite : "assets/backgroundBlack.png"
+    parallax : 0.1
+    skip_collision : on
+}
+
+#WallLeft Platform
+{
+    x : 30
+    y : 300
+    width : 40
+    height : 600
+    color : gray
+    sprite : "assets/meteorBig.png"
+    kinematic : on
+    collider : box
+}
+
+#WallRight Platform
+{
+    x : 1970
+    y : 300
+    width : 40
+    height : 600
+    color : gray
+    sprite : "assets/meteorBig.png"
+    kinematic : on
+    collider : box
+}
+
+#Ground1 Platform
+{
+    x : 600
+    y : 580
+    width : 1000
+    height : 40
+    color : gray
+    sprite : "assets/meteorBig.png"
+    kinematic : on
+    collider : box
+}
+
+#Ground2 Platform
+{
+    x : 1500
+    y : 580
+    width : 400
+    height : 40
+    color : gray
+    sprite : "assets/meteorBig.png"
+    kinematic : on
+    collider : box
+}
+
+#Float1 Platform
+{
+    x : 400
+    y : 440
+    width : 140
+    height : 20
+    color : gray
+    sprite : "assets/meteorSmall.png"
+    kinematic : on
+    collider : box
+}
+
+#Float2 Platform
+{
+    x : 700
+    y : 360
+    width : 140
+    height : 20
+    color : gray
+    sprite : "assets/meteorSmall.png"
+    kinematic : on
+    collider : box
+}
+
+#Float3 Platform
+{
+    x : 1000
+    y : 440
+    width : 140
+    height : 20
+    color : gray
+    sprite : "assets/meteorSmall.png"
+    kinematic : on
+    collider : box
+}
+
+#Float4 Platform
+{
+    x : 1450
+    y : 400
+    width : 140
+    height : 20
+    color : gray
+    sprite : "assets/meteorSmall.png"
+    kinematic : on
+    collider : box
+}
+
+#Float5 Platform
+{
+    x : 1700
+    y : 340
+    width : 140
+    height : 20
+    color : gray
+    sprite : "assets/meteorSmall.png"
+    kinematic : on
+    collider : box
+}
+
+#Player Character
+{
+    x : 100
+    y : 500
+    size : 32
+    color : cyan
+    sprite : "assets/playerShip1_blue.png"
+    speed : 380
+    jump_force : 520
+    mass : 1
+    gravity : on
+    friction : 0.5
+    restitution : 0
+    health : 6
+    invuln_duration : 1.2
+    knockback : 140
+    collider : box
+}
+
+#TurretLeft Item
+{
+    x : 400
+    y : 416
+    size : 40
+    color : red
+    sprite : "assets/turretBase_big.png"
+    mass : 999
+    gravity : off
+    kinematic : on
+    health : 8
+    tag : Turret
+    collider : box
+}
+
+#TurretMid Item
+{
+    x : 1000
+    y : 416
+    size : 40
+    color : red
+    sprite : "assets/turretBase_big.png"
+    mass : 999
+    gravity : off
+    kinematic : on
+    health : 8
+    tag : Turret
+    collider : box
+}
+
+#TurretRight Item
+{
+    x : 1700
+    y : 316
+    size : 40
+    color : red
+    sprite : "assets/turretBase_big.png"
+    mass : 999
+    gravity : off
+    kinematic : on
+    health : 8
+    tag : Turret
+    collider : box
+}
+
+#Enemy1 Enemy
+{
+    x : 400
+    y : 540
+    size : 32
+    color : purple
+    sprite : "assets/enemyBlack1.png"
+    mass : 1
+    gravity : on
+    friction : 0.5
+    health : 3
+    patrol_min : 200
+    patrol_max : 700
+    patrol_speed : 70
+    collider : box
+}
+
+#Enemy2 Enemy
+{
+    x : 900
+    y : 540
+    size : 32
+    color : purple
+    sprite : "assets/enemyBlack1.png"
+    mass : 1
+    gravity : on
+    friction : 0.5
+    health : 3
+    patrol_min : 700
+    patrol_max : 1000
+    patrol_speed : 70
+    collider : box
+}
+
+#Enemy3 Enemy
+{
+    x : 1500
+    y : 540
+    size : 32
+    color : purple
+    sprite : "assets/enemyBlack1.png"
+    mass : 1
+    gravity : on
+    friction : 0.5
+    health : 3
+    patrol_min : 1300
+    patrol_max : 1700
+    patrol_speed : 70
+    collider : box
+}
+
+#Coin1 Item
+{
+    x : 400
+    y : 400
+    size : 16
+    color : yellow
+    sprite : "assets/powerupBlue.png"
+    gravity : off
+    trigger : on
+    collider : box
+}
+
+#Coin2 Item
+{
+    x : 700
+    y : 320
+    size : 16
+    color : yellow
+    sprite : "assets/powerupBlue.png"
+    gravity : off
+    trigger : on
+    collider : box
+}
+
+#Coin3 Item
+{
+    x : 1000
+    y : 400
+    size : 16
+    color : yellow
+    sprite : "assets/powerupBlue.png"
+    gravity : off
+    trigger : on
+    collider : box
+}
+
+#Coin4 Item
+{
+    x : 1200
+    y : 500
+    size : 16
+    color : yellow
+    sprite : "assets/powerupBlue.png"
+    gravity : off
+    trigger : on
+    collider : box
+}
+
+#Coin5 Item
+{
+    x : 1450
+    y : 360
+    size : 16
+    color : yellow
+    sprite : "assets/powerupBlue.png"
+    gravity : off
+    trigger : on
+    collider : box
+}
+
+#Coin6 Item
+{
+    x : 1700
+    y : 300
+    size : 16
+    color : yellow
+    sprite : "assets/powerupBlue.png"
+    gravity : off
+    trigger : on
+    collider : box
+}
+
+#Coin7 Item
+{
+    x : 200
+    y : 540
+    size : 16
+    color : yellow
+    sprite : "assets/powerupBlue.png"
+    gravity : off
+    trigger : on
+    collider : box
+}
+
+#ExitPortal Item
+{
+    x : 1900
+    y : 500
+    size : 40
+    color : cyan
+    sprite : "assets/powerupBlue.png"
+    gravity : off
+    trigger : on
+    tag : Portal
+    collider : box
+}
+
+#PlayerBulletPrefab Prefab
+{
+    tag : PlayerBullet
+    size : 12
+    color : cyan
+    sprite : "assets/laserBlue01.png"
+    physics : off
+    collider : box
+    projectile_speed : 950
+    projectile_lifetime : 0.7
+    projectile_damage : 1
+}
+
+#EnemyBulletPrefab Prefab
+{
+    tag : EnemyBullet
+    size : 10
+    color : red
+    sprite : "assets/laserRed01.png"
+    physics : off
+    collider : box
+    projectile_speed : 300
+    projectile_lifetime : 3.0
+    projectile_damage : 1
+}
+
+#MeteorPrefab Prefab
+{
+    tag : Meteor
+    size : 28
+    color : orange
+    sprite : "assets/meteorBig.png"
+    physics : off
+    collider : box
+    projectile_speed : 340
+    projectile_lifetime : 5.0
+    projectile_damage : 3
+    projectile_angle : 90
+    projectile_friendly_tag : Enemy
+}
+
+#GruntPrefab Prefab
+{
+    tag : Enemy
+    size : 32
+    color : purple
+    sprite : "assets/enemyBlack1.png"
+    mass : 1
+    gravity : on
+    friction : 0.5
+    health : 3
+    collider : box
+    patrol_min : 100
+    patrol_max : 1900
+    patrol_speed : 80
+}
+
+#BossPrefab Prefab
+{
+    tag : Enemy
+    size : 56
+    color : magenta
+    sprite : "assets/enemyRed1.png"
+    mass : 3
+    gravity : on
+    friction : 0.5
+    health : 15
+    boss : on
+    hp : 15
+    collider : box
+}
+
+#ExtraSpawnerPrefab Prefab
+{
+    tag : Spawner
+    size : 24
+    color : green
+    sprite : "assets/spaceStation_018.png"
+    mass : 999
+    gravity : off
+    kinematic : on
+    health : 4
+    skip_collision : on
+    spawn_every : 10
+    spawn_prefab : GruntPrefab
+    spawn_at_self : on
+}
+
+on a
+{
+    move left
+    rotate 180
+}
+
+on d
+{
+    move right
+    rotate 0
+}
+
+on left
+{
+    move left
+    rotate 180
+}
+
+on right
+{
+    move right
+    rotate 0
+}
+
+on space
+{
+    jump
+}
+
+on w
+{
+    jump
+}
+
+on up
+{
+    jump
+}
+
+on j
+{
+    spawn PlayerBulletPrefab
+}
+
+on collide Coin
+{
+    despawn
+    heal Player 2
+    play pickup
+}
+
+on collide Enemy
+{
+    damage Player 1
+    damage 1
+    play hurt
+}
+
+on collide Turret
+{
+    damage Player 1
+    play hurt
+}
+
+on collide Meteor
+{
+    damage Player 3
+    play hurt
+}
+
+on collide Portal
+{
+    victory
+    play pickup
+}
+
+on timer 4
+{
+    look_at TurretLeft Player
+    TurretLeft.spawn EnemyBulletPrefab
+}
+
+on timer 5
+{
+    look_at TurretMid Player
+    TurretMid.spawn EnemyBulletPrefab
+}
+
+on timer 6
+{
+    look_at TurretRight Player
+    TurretRight.spawn EnemyBulletPrefab
+}
+
+on timer 5
+{
+    spawn MeteorPrefab at 300 -50
+}
+
+on timer 7
+{
+    spawn MeteorPrefab at 700 -50
+}
+
+on timer 6
+{
+    spawn MeteorPrefab at 1100 -50
+}
+
+on timer 8
+{
+    spawn MeteorPrefab at 1500 -50
+}
+
+on timer 9
+{
+    spawn MeteorPrefab at 1800 -50
+}
+
+on timer 60
+{
+    spawn BossPrefab at 1000 -60
+}
+
+after 25
+{
+    spawn ExtraSpawnerPrefab at 500 100
+}
+
+after 50
+{
+    spawn ExtraSpawnerPrefab at 1500 100
+}
