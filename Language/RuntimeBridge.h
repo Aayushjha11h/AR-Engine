@@ -51,6 +51,8 @@ namespace ar {
         Entity* GetPlayer() const { return playerEntity; }
         const std::string& GetError() const { return error; }
         int  GetCoinsCollected() const { return m_CoinsCollected; }
+        int  GetPlayerHealth() const;
+        int  GetPlayerMaxHealth() const;
         bool IsVictoryTriggered() const { return m_VictoryTriggered; }
         bool IsPlayerDead() const { return m_PlayerDead; }
         void ClearGameplayFlags() { m_VictoryTriggered = false; m_PlayerDead = false; }
@@ -92,6 +94,7 @@ namespace ar {
         std::unordered_set<uint64_t> m_CollisionPairsThis;
 
         std::unordered_map<std::string, float> m_TimerAccum;
+        std::unordered_set<std::string>        m_AfterFired;
 
         static uint64_t PairKeyByName(const std::string& a, const std::string& b);
 

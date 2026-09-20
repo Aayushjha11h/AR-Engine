@@ -13,6 +13,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <cmath>
 
 #undef main
 
@@ -21,6 +22,7 @@ public:
     ar::RuntimeBridge* bridge = nullptr;
     std::string scriptSource;
     ar::Texture titleTexture;
+    float m_Elapsed = 0.0f;
 
     void OnInit() override {
         bridge = new ar::RuntimeBridge(GetScene(), GetInput(), GetAudio(), GetCamera());
@@ -30,7 +32,6 @@ public:
             std::cerr << "game.argdl not found.\n";
             return;
         }
-
         scriptSource.assign(
             (std::istreambuf_iterator<char>(file)),
             std::istreambuf_iterator<char>());
@@ -49,33 +50,33 @@ public:
             return false;
         }
         bridge->ClearGameplayFlags();
+        m_Elapsed = 0.0f;
         return true;
     }
 
     void OnUpdate(float dt) override {
+        m_Elapsed += dt;
+
         auto* input = GetInput();
         const ar::GameState state = GetState();
 
         if (state == ar::GameState::TitleScreen) {
             if (input->IsKeyPressed(SDL_SCANCODE_RETURN) || input->IsKeyPressed(SDL_SCANCODE_SPACE)) {
-                if (ReloadLevel())
-                    SetState(ar::GameState::Playing);
+                if (ReloadLevel()) SetState(ar::GameState::Playing);
             }
             return;
         }
 
         if (state == ar::GameState::GameOver) {
             if (input->IsKeyPressed(SDL_SCANCODE_R)) {
-                if (ReloadLevel())
-                    SetState(ar::GameState::Playing);
+                if (ReloadLevel()) SetState(ar::GameState::Playing);
             }
             return;
         }
 
         if (state == ar::GameState::Victory) {
             if (input->IsKeyPressed(SDL_SCANCODE_SPACE) || input->IsKeyPressed(SDL_SCANCODE_RETURN)) {
-                if (ReloadLevel())
-                    SetState(ar::GameState::Playing);
+                if (ReloadLevel()) SetState(ar::GameState::Playing);
             }
             return;
         }
@@ -86,8 +87,8 @@ public:
         if (player) {
             auto* t = player->GetComponent<ar::Transform>();
             if (t) {
-                GetCamera()->Follow(t->Position, 5.0f, dt);
-                if (t->Position.y > 620.0f)
+                GetCamera()->Follow(t->Position, 4.0f, dt);
+                if (t->Position.y > 700.0f)
                     SetState(ar::GameState::GameOver);
             }
         }
@@ -110,14 +111,54 @@ public:
         GetRenderer()->DrawParallaxBackground(
             cam->GetPosition(), w, h,
             bridge ? bridge->GetBackgroundTexture() : nullptr,
-            0.2f,
-            { 0.35f, 0.55f, 0.95f, 1.0f });
+            0.15f,
+            { 0.05f, 0.05f, 0.12f, 1.0f });
     }
 
-    void DrawBanner(const glm::vec2& center, const glm::vec2& size, const glm::vec4& color, const glm::vec4& accent) {
+    void DrawBanner(const glm::vec2& center, const glm::vec2& size,
+                    const glm::vec4& color, const glm::vec4& accent) {
         auto* r = GetRenderer();
         r->DrawQuad(center, size, color);
-        r->DrawQuad({ center.x, center.y + size.y * 0.35f }, { size.x * 0.85f, size.y * 0.12f }, accent);
+        r->DrawQuad({ center.x, center.y + size.y * 0.35f },
+                    { size.x * 0.85f, size.y * 0.12f }, accent);
+    }
+
+    void DrawHealthBar(const glm::vec2& topLeft, float width, float height) {
+        if (!bridge) return;
+        auto* r = GetRenderer();
+
+        const int hp = bridge->GetPlayerHealth();
+        const int maxHp = bridge->GetPlayerMaxHealth();
+        if (maxHp <= 0) return;
+
+        const float pct = (float)hp / (float)maxHp;
+        const glm::vec2 barCenter = { topLeft.x + width * 0.5f, topLeft.y + height * 0.5f };
+
+        // Outer border
+        r->DrawQuad(barCenter, { width + 6.0f, height + 6.0f }, { 0.4f, 0.4f, 0.5f, 0.9f });
+        // Inner background
+        r->DrawQuad(barCenter, { width, height }, { 0.05f, 0.05f, 0.08f, 0.95f });
+
+        if (pct > 0.0f) {
+            glm::vec4 fillColor;
+            if (pct > 0.5f)       fillColor = { 0.2f, 0.9f, 0.3f, 1.0f };
+            else if (pct > 0.25f) fillColor = { 1.0f, 0.75f, 0.15f, 1.0f };
+            else                  fillColor = { 1.0f, 0.2f, 0.2f, 1.0f };
+
+            const float innerWidth = (width - 4.0f) * pct;
+            const float outerLeft = barCenter.x - width * 0.5f;
+            const float fillCenterX = outerLeft + 2.0f + innerWidth * 0.5f;
+            r->DrawQuad({ fillCenterX, barCenter.y },
+                        { innerWidth, height - 4.0f }, fillColor);
+        }
+
+        // Tick marks per HP point
+        for (int i = 1; i < maxHp; ++i) {
+            float t = (float)i / (float)maxHp;
+            float tx = topLeft.x + width * t;
+            r->DrawQuad({ tx, barCenter.y }, { 1.5f, height - 4.0f },
+                        { 0.0f, 0.0f, 0.0f, 0.6f });
+        }
     }
 
     void OnRender() override {
@@ -129,39 +170,67 @@ public:
 
         const ar::GameState state = GetState();
 
+        // ---------------- TITLE SCREEN ----------------
         if (state == ar::GameState::TitleScreen) {
+            r->DrawScreenOverlay(camPos, w, h, { 0.02f, 0.02f, 0.06f, 0.85f });
+
             if (titleTexture.GetID()) {
                 ar::Sprite s;
                 s.Position = camPos;
-                s.Size = { w * 0.9f, h * 0.55f };
+                s.Size = { w * 0.85f, h * 0.5f };
                 s.Tex = &titleTexture;
                 r->DrawSprite(s);
+            } else {
+                DrawBanner(camPos, { w * 0.85f, h * 0.35f },
+                           { 0.05f, 0.08f, 0.18f, 0.95f },
+                           { 0.3f, 0.7f, 1.0f, 1.0f });
+                r->DrawQuad({ camPos.x, camPos.y - h * 0.35f },
+                            { w * 0.6f, 30.0f }, { 0.4f, 0.85f, 1.0f, 0.9f });
+                r->DrawQuad({ camPos.x, camPos.y - h * 0.12f },
+                            { w * 0.5f, 20.0f }, { 1.0f, 0.4f, 0.4f, 0.9f });
             }
-            else {
-                DrawBanner(camPos, { w * 0.85f, h * 0.45f }, { 0.1f, 0.12f, 0.25f, 0.95f }, { 0.9f, 0.25f, 0.2f, 1.0f });
-            }
-            r->DrawQuad({ camPos.x, camPos.y - h * 0.22f }, { w * 0.55f, 36.0f }, { 1.0f, 1.0f, 1.0f, 0.9f });
-            r->DrawQuad({ camPos.x, camPos.y + h * 0.28f }, { w * 0.65f, 24.0f }, { 1.0f, 0.95f, 0.4f, 0.85f });
+
+            float pulse = 0.6f + 0.4f * std::sin(m_Elapsed * 4.0f);
+            r->DrawQuad({ camPos.x, camPos.y + h * 0.25f },
+                        { w * 0.5f, 24.0f }, { 1.0f, 0.95f, 0.4f, pulse });
+            r->DrawQuad({ camPos.x, camPos.y + h * 0.36f },
+                        { w * 0.65f, 14.0f }, { 0.7f, 0.7f, 0.85f, 0.7f });
             return;
         }
 
+        // ---------------- PLAYING ----------------
         if (state == ar::GameState::Playing && bridge) {
-            r->DrawQuad({ camPos.x - w * 0.42f, camPos.y - h * 0.42f }, { 140.0f, 36.0f }, { 0.0f, 0.0f, 0.0f, 0.45f });
-            r->DrawQuad({ camPos.x - w * 0.42f, camPos.y - h * 0.42f }, { 24.0f + bridge->GetCoinsCollected() * 8.0f, 20.0f }, { 1.0f, 0.85f, 0.1f, 0.95f });
+            DrawHealthBar({ camPos.x - w * 0.45f, camPos.y - h * 0.44f }, 240.0f, 26.0f);
+            const int coins = bridge->GetCoinsCollected();
+            r->DrawQuad({ camPos.x - w * 0.45f + 30.0f, camPos.y - h * 0.40f + 22.0f },
+                        { 40.0f + coins * 6.0f, 12.0f }, { 1.0f, 0.85f, 0.1f, 0.95f });
         }
 
+        // ---------------- GAME OVER ----------------
         if (state == ar::GameState::GameOver) {
-            r->DrawScreenOverlay(camPos, w, h, { 0.0f, 0.0f, 0.0f, 0.55f });
-            DrawBanner(camPos, { w * 0.7f, h * 0.25f }, { 0.35f, 0.05f, 0.05f, 0.95f }, { 0.9f, 0.15f, 0.15f, 1.0f });
-            r->DrawQuad({ camPos.x, camPos.y + h * 0.18f }, { w * 0.5f, 20.0f }, { 1.0f, 1.0f, 1.0f, 0.75f });
+            r->DrawScreenOverlay(camPos, w, h, { 0.15f, 0.0f, 0.0f, 0.65f });
+            DrawBanner(camPos, { w * 0.7f, h * 0.28f },
+                       { 0.35f, 0.05f, 0.05f, 0.95f },
+                       { 0.95f, 0.15f, 0.15f, 1.0f });
+            r->DrawQuad({ camPos.x, camPos.y + h * 0.22f },
+                        { w * 0.55f, 18.0f }, { 1.0f, 1.0f, 1.0f, 0.85f });
+            float pulse = 0.5f + 0.5f * std::sin(m_Elapsed * 3.0f);
+            r->DrawQuad({ camPos.x, camPos.y + h * 0.34f },
+                        { w * 0.4f, 14.0f }, { 1.0f, 0.9f, 0.3f, pulse });
         }
 
+        // ---------------- VICTORY ----------------
         if (state == ar::GameState::Victory) {
-            r->DrawScreenOverlay(camPos, w, h, { 0.0f, 0.05f, 0.1f, 0.5f });
-            DrawBanner(camPos, { w * 0.75f, h * 0.28f }, { 0.05f, 0.35f, 0.15f, 0.95f }, { 0.2f, 0.95f, 0.35f, 1.0f });
+            r->DrawScreenOverlay(camPos, w, h, { 0.0f, 0.08f, 0.15f, 0.6f });
+            DrawBanner(camPos, { w * 0.75f, h * 0.3f },
+                       { 0.05f, 0.35f, 0.15f, 0.95f },
+                       { 0.2f, 0.95f, 0.35f, 1.0f });
             const int coins = bridge ? bridge->GetCoinsCollected() : 0;
-            r->DrawQuad({ camPos.x, camPos.y + h * 0.05f }, { 80.0f + coins * 6.0f, 22.0f }, { 1.0f, 0.9f, 0.2f, 1.0f });
-            r->DrawQuad({ camPos.x, camPos.y + h * 0.2f }, { w * 0.55f, 18.0f }, { 1.0f, 1.0f, 1.0f, 0.8f });
+            r->DrawQuad({ camPos.x, camPos.y + h * 0.1f },
+                        { 100.0f + coins * 6.0f, 22.0f }, { 1.0f, 0.9f, 0.2f, 1.0f });
+            float pulse = 0.5f + 0.5f * std::sin(m_Elapsed * 3.0f);
+            r->DrawQuad({ camPos.x, camPos.y + h * 0.28f },
+                        { w * 0.5f, 16.0f }, { 1.0f, 1.0f, 1.0f, pulse });
         }
     }
 
@@ -173,10 +242,8 @@ public:
 
 int main() {
     ScriptGame game;
-
-    if (!game.Init("AR Script Demo", 800, 600))
+    if (!game.Init("STARFALL — Reactor Breach", 800, 600))
         return -1;
-
     game.Run();
     return 0;
 }

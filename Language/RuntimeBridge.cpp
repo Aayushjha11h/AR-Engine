@@ -5,6 +5,8 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <sstream>
+#include <cmath>
+#include <algorithm>
 
 namespace ar {
 
@@ -59,6 +61,7 @@ namespace ar {
         m_CollisionPairsLast.clear();
         m_CollisionPairsThis.clear();
         m_TimerAccum.clear();
+        m_AfterFired.clear();
 
         Lexer lexer(argdlSource);
         Parser parser(lexer);
@@ -87,6 +90,7 @@ namespace ar {
             const std::string& trigger = scriptEvent.trigger;
             if (trigger.size() >= 8 && trigger.substr(0, 8) == "collide ") continue;
             if (trigger.size() >= 6 && trigger.substr(0, 6) == "timer ") continue;
+            if (trigger.size() >= 6 && trigger.substr(0, 6) == "after ") continue;
 
             int scancode = StringToScancode(trigger);
             if (scancode < 0) continue;
@@ -138,6 +142,18 @@ namespace ar {
         auto it = entities.find(name);
         if (it != entities.end()) return it->second;
         return scene->FindEntity(name);
+    }
+
+    int RuntimeBridge::GetPlayerHealth() const {
+        if (!playerEntity) return 0;
+        if (auto* h = playerEntity->GetComponent<Health>()) return h->Current;
+        return 0;
+    }
+
+    int RuntimeBridge::GetPlayerMaxHealth() const {
+        if (!playerEntity) return 0;
+        if (auto* h = playerEntity->GetComponent<Health>()) return h->Max;
+        return 0;
     }
 
     Entity* RuntimeBridge::ResolveTarget(const std::string& name) {
@@ -414,7 +430,7 @@ namespace ar {
             };
         }
 
-               // Determine AI from properties, so prefabs spawned at runtime get AI too.
+        // Determine AI from properties, so prefabs spawned at runtime get AI too.
         auto itBoss = scriptObj.properties.find("boss");
         bool isBoss = (itBoss != scriptObj.properties.end() && ParseBool(itBoss->second, false));
 
@@ -487,16 +503,30 @@ namespace ar {
     void RuntimeBridge::ProcessTimerEvents(float dt) {
         for (const auto& ev : interpreter.GetEvents()) {
             const std::string& trig = ev.trigger;
-            if (trig.size() < 6 || trig.substr(0, 6) != "timer ") continue;
 
+            // One-shot "after N" events (fire once, N seconds after level start).
+            if (trig.size() >= 6 && trig.substr(0, 6) == "after ") {
+                if (m_AfterFired.count(trig)) continue;
+                float delay = ParseFloat(trig.substr(6), 1.0f);
+                if (delay <= 0.0f) continue;
+                float& acc = m_TimerAccum[trig];
+                acc += dt;
+                if (acc >= delay) {
+                    m_AfterFired.insert(trig);
+                    ExecuteCommands(ev.commands, playerEntity);
+                }
+                continue;
+            }
+
+            // Repeating "timer N" events.
+            if (trig.size() < 6 || trig.substr(0, 6) != "timer ") continue;
             float period = ParseFloat(trig.substr(6), 1.0f);
             if (period <= 0.0f) continue;
-
             float& acc = m_TimerAccum[trig];
             acc += dt;
             if (acc >= period) {
                 acc -= period;
-                if (acc >= period) acc = 0.0f; // clamp on huge dt
+                if (acc >= period) acc = 0.0f;
                 ExecuteCommands(ev.commands, playerEntity);
             }
         }
@@ -572,7 +602,7 @@ namespace ar {
                 if (bProj) applyProjectileHit(bProj, bEnt, aEnt);
             }
 
-                        for (const auto& scriptEvent : interpreter.GetEvents()) {
+            for (const auto& scriptEvent : interpreter.GetEvents()) {
                 const std::string& trigger = scriptEvent.trigger;
                 if (trigger.size() < 8 || trigger.substr(0, 8) != "collide ") continue;
                 std::string target = trigger.substr(8);
@@ -708,6 +738,9 @@ namespace ar {
                 ++index;
             }
         }
+        else if (token == "victory") {
+            m_VictoryTriggered = true;
+        }
         else if (token == "spawn") {
             std::string prefabName;
             std::string atTarget;
@@ -767,12 +800,10 @@ namespace ar {
             if (index < commands.size()) {
                 const std::string& first = commands[index];
                 if (LooksLikeNumber(first)) {
-                    // damage N
                     amount = static_cast<int>(ParseFloat(first, 1.0f));
                     ++index;
                 }
                 else {
-                    // damage Entity [N]
                     entName = first;
                     hasEntName = true;
                     ++index;
@@ -945,11 +976,9 @@ namespace ar {
         auto* t = newEntity->GetComponent<Transform>();
         if (!t) return;
 
-        // Determine shooter for projectile inheritance
         Entity* shooter = explicitTarget ? explicitTarget
                        : (m_ContextEntity ? m_ContextEntity : playerEntity);
 
-        // Projectile inheritance: Shooter name, FriendlyTag, and Rotation (if not overridden).
         if (auto* proj = newEntity->GetComponent<Projectile>()) {
             if (shooter) {
                 proj->Shooter = shooter->Name;
@@ -1064,7 +1093,6 @@ namespace ar {
         if (!t) return;
         if (amount <= 0) amount = 1;
 
-        // Determine source position for knockback (context = damage dealer).
         glm::vec2 sourcePos(0.0f, 0.0f);
         bool haveSource = false;
         if (m_ContextEntity && m_ContextEntity != t) {

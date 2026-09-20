@@ -89,14 +89,16 @@ namespace ar {
             if (currentToken.type == TokenType::HASH) {
                 if (!ParseObject()) return false;
             }
-            else if (currentToken.type == TokenType::IDENTIFIER && currentToken.literal == "on") {
+            else if (currentToken.type == TokenType::IDENTIFIER &&
+                     (currentToken.literal == "on" || currentToken.literal == "after")) {
                 if (!ParseEvent()) return false;
             }
             else {
                 error = "Parse error at line " + std::to_string(currentToken.line) +
                     ": unexpected token " + TokenTypeToString(currentToken.type) +
                     "('" + currentToken.literal + "'). " +
-                    "Expected '#' to start an object or 'on' to start an event.";
+                    "Expected '#' to start an object, 'on' to start an event, "
+                    "or 'after' to start a one-shot event.";
                 return false;
             }
             SkipNewlines();
@@ -177,9 +179,11 @@ namespace ar {
     }
 
     // on Trigger { commands }
+    // after N   { commands }   (one-shot, fires once N seconds after level start)
     bool Parser::ParseEvent() {
-        // currentToken is IDENTIFIER "on"
-        Advance(); // consume "on"
+        // currentToken is either IDENTIFIER "on" or IDENTIFIER "after".
+        std::string keyword = currentToken.literal;
+        Advance(); // consume keyword
 
         EventNode event;
         std::string triggerStr;
@@ -192,10 +196,17 @@ namespace ar {
 
         if (triggerStr.empty()) {
             error = "Parse error at line " + std::to_string(currentToken.line) +
-                ": expected event trigger after 'on'";
+                ": expected event trigger after '" + keyword + "'";
             return false;
         }
-        event.trigger = triggerStr;
+
+        // Preserve the "after" prefix so RuntimeBridge can distinguish
+        // one-shot "after N" events from repeating "timer N" events.
+        if (keyword == "after") {
+            event.trigger = "after " + triggerStr;
+        } else {
+            event.trigger = triggerStr;
+        }
 
         SkipNewlines();
 
