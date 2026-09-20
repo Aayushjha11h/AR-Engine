@@ -66,43 +66,42 @@ Two additional ARGDL levels show off the combat side of the engine: shooting, tu
 
 ```
 ARengine/
-├── engine/              # Core engine components
-│   ├── Audio.cpp/h     # Audio system
-│   ├── Camera.cpp/h    # Camera with follow and zoom
-│   ├── Collision.cpp/h # Physics collision detection
-│   ├── Component.cpp/h # Base component system
-│   ├── Entity.cpp/h    # Entity management
-│   ├── GameLoop.cpp/h  # Main game loop
-│   ├── Gravity.cpp/h   # Gravity force application
-│   ├── Input.cpp/h     # Input handling
-│   ├── PatrolAI.cpp/h  # Enemy patrol AI
-│   ├── BossAI.cpp/h    # Boss enemy AI
-│   ├── Renderer.cpp/h  # OpenGL rendering
-│   ├── RigidBody.cpp/h # Physics rigid bodies
-│   ├── Scene.cpp/h     # Scene management
-│   ├── Shader.cpp/h    # OpenGL shader management
-│   ├── Sprite.h        # Sprite structure
-│   ├── Texture.cpp/h   # Texture loading
-│   ├── Timer.cpp/h     # Delta time calculation
-│   └── Window.cpp/h    # Window management
-├── Language/           # Custom scripting language
-│   ├── Lexer.cpp/h     # Tokenizer for ARGDL
-│   ├── Parser.cpp/h    # Parser for ARGDL
-│   ├── Interpreter.cpp/h# Interpreter for ARGDL
-│   ├── RuntimeBridge.cpp/h# Bridge between script and engine
-│   └── Token.cpp/h     # Token definitions
-├── ThirdParty/         # External dependencies
-│   └── stb/           # stb_image for texture loading
-├── assets/            # Game assets
-│   ├── background.jpg  # Parallax background
-│   ├── character.jpg  # Player sprite
-│   ├── dirt.jpg       # Platform/ground texture
-│   ├── coin.png       # Collectible coin sprite
-│   ├── boss.png       # Enemy boss sprite
-│   └── tree.png       # Scenery decoration
-├── game.argdl         # Game level definition (ARGDL)
-├── main.cpp           # Application entry point
-└── README.md          # This file
+├── engine/                # Core engine components
+│   ├── Audio.cpp/h        # Audio system management
+│   ├── BossAI.cpp/h       # Boss enemy behavior and AI logic
+│   ├── Camera.cpp/h       # Camera with follow and zoom capabilities
+│   ├── Collision.cpp/h    # Physics collision detection and response
+│   ├── Component.cpp/h    # Base component system
+│   ├── Entity.cpp/h       # Entity lifecycle and management
+│   ├── GameLoop.cpp/h     # Main application game loop
+│   ├── Gravity.cpp/h      # Gravity force application
+│   ├── Health.cpp/h       # Entity health and damage tracking
+│   ├── Input.cpp/h        # Keyboard and input event handling
+│   ├── PatrolAI.cpp/h     # Enemy patrol AI behavior
+│   ├── Renderer.cpp/h     # OpenGL 2D batch/quad rendering
+│   ├── RigidBody.cpp/h    # Physics rigid bodies and forces
+│   ├── Scene.cpp/h        # Scene tree and level management
+│   ├── Shader.cpp/h       # OpenGL shader compiling and management
+│   ├── Sound.cpp/h        # Sound effect playback and instances
+│   ├── Spawner.cpp/h      # Dynamic entity spawner logic
+│   ├── Sprite.h           # Sprite and vertex structures
+│   ├── Texture.cpp/h      # Texture loading and binding
+│   ├── Timer.cpp/h        # Frame timing and delta time calculation
+│   └── Window.cpp/h       # SDL Window creation and OpenGL context
+├── Language/              # Custom scripting language (ARGDL)
+│   ├── Lexer.cpp/h        # Tokenizer for ARGDL scripts
+│   ├── Parser.cpp/h       # AST Parser for ARGDL scripts
+│   ├── Interpreter.cpp/h # Interpreter for ARGDL execution
+│   ├── RuntimeBridge.cpp/h # Bridge connecting ARGDL to C++ engine core
+│   └── Token.cpp/h        # Lexical token definitions
+├── ThirdParty/            # External dependencies
+│   └── stb/               # stb_image for image texture decoding
+├── assets/                # Game graphics assets
+├── game.argdl             # Main game level script (ARGDL)
+├── game2.argdl            # Demo game script 2
+├── game3.argdl            # Shooter platformer demo game script 3
+├── main.cpp               # Application entry point
+└── README.md              # Project documentation
 ```
 
 ## Building
