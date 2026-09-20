@@ -154,7 +154,7 @@ Token Lexer::ReadString() {
 
 Token Lexer::ReadIdentifier() {
     size_t start = position;
-    while (IsLetter(currentChar) || IsDigit(currentChar) || currentChar == '_') {
+    while (IsLetter(currentChar) || IsDigit(currentChar) || currentChar == '_' || currentChar == '.') {
         ReadChar();
     }
     return MakeToken(TokenType::IDENTIFIER, source.substr(start, position - start));

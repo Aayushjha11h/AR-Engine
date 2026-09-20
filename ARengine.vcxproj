@@ -149,6 +149,7 @@
     <ClCompile Include="engine\Entity.cpp" />
     <ClCompile Include="engine\GameLoop.cpp" />
     <ClCompile Include="engine\Gravity.cpp" />
+    <ClCompile Include="engine\Health.cpp" />
     <ClCompile Include="engine\Input.cpp" />
     <ClCompile Include="engine\PatrolAI.cpp" />
     <ClCompile Include="engine\Renderer.cpp" />
@@ -156,6 +157,7 @@
     <ClCompile Include="engine\Scene.cpp" />
     <ClCompile Include="engine\Shader.cpp" />
     <ClCompile Include="engine\Sound.cpp" />
+    <ClCompile Include="engine\Spawner.cpp" />
     <ClCompile Include="engine\Texture.cpp" />
     <ClCompile Include="engine\Timer.cpp" />
     <ClCompile Include="engine\Window.cpp" />
@@ -175,6 +177,7 @@
     <ClInclude Include="engine\Entity.h" />
     <ClInclude Include="engine\GameLoop.h" />
     <ClInclude Include="engine\Gravity.h" />
+    <ClInclude Include="engine\Health.h" />
     <ClInclude Include="engine\Input.h" />
     <ClInclude Include="engine\PatrolAI.h" />
     <ClInclude Include="engine\Renderer.h" />
@@ -182,6 +185,7 @@
     <ClInclude Include="engine\Scene.h" />
     <ClInclude Include="engine\Shader.h" />
     <ClInclude Include="engine\Sound.h" />
+    <ClInclude Include="engine\Spawner.h" />
     <ClInclude Include="engine\Sprite.h" />
     <ClInclude Include="engine\Texture.h" />
     <ClInclude Include="engine\Timer.h" />

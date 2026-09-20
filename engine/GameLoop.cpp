@@ -110,6 +110,8 @@ namespace ar {
 
             OnUpdate(dt);
 
+            m_Camera->UpdateShake(dt);
+
             if (m_State == GameState::Playing)
                 m_Scene->Update(dt);
 

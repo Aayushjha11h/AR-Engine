@@ -22,7 +22,8 @@ namespace ar {
     }
 
     void Scene::Update(float dt) {
-        // Reset ground state and apply gravity to all rigidbodies
+        // Reset ground state and apply gravity to all rigidbodies.
+        // Safe: this pass does not run Component::Update(), so nothing can spawn here.
         for (auto& e : m_Entities) {
             if (auto* rb = e->GetComponent<RigidBody>()) {
                 rb->ResetGroundState();
@@ -30,14 +31,25 @@ namespace ar {
             }
         }
 
-        // Integrate positions and velocities
-        for (auto& e : m_Entities) e->Update(dt);
+        // Snapshot entity pointers BEFORE running component updates.
+        // A component (e.g. Spawner) may call scene->CreateEntity() during Update,
+        // which reallocates m_Entities and would invalidate a range-for iterator.
+        std::vector<Entity*> snapshot;
+        snapshot.reserve(m_Entities.size());
+        for (auto& e : m_Entities) snapshot.push_back(e.get());
 
+        for (Entity* e : snapshot) {
+            if (e && e->Active) e->Update(dt);
+        }
+
+        // Collision pass: indexed loop is safe against m_Entities growth mid-frame.
         Collision::BeginTriggerFrame();
         for (size_t i = 0; i < m_Entities.size(); ++i)
             for (size_t j = i + 1; j < m_Entities.size(); ++j)
                 Collision::CheckAndResolve(m_Entities[i].get(), m_Entities[j].get());
         Collision::EndTriggerFrame();
+
+        // Deferred destruction.
         if (!m_ToDestroy.empty()) {
             m_Entities.erase(
                 std::remove_if(m_Entities.begin(), m_Entities.end(),

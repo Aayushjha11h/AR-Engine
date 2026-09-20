@@ -36,6 +36,7 @@ namespace ar {
         void Render(Renderer* renderer) override;
         void SetTexture(Texture* tex) { m_Texture = tex; }
         void SetColor(const glm::vec4& c) { m_Color = c; }
+        const glm::vec4& GetColor() const { return m_Color; }
         void SetSize(const glm::vec2& s) { m_Size = s; }
         void SetLayer(RenderLayer layer) { m_Layer = layer; }
         RenderLayer GetLayer() const { return m_Layer; }

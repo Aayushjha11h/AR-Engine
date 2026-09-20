@@ -181,10 +181,21 @@ namespace ar {
         // currentToken is IDENTIFIER "on"
         Advance(); // consume "on"
 
-        if (!Expect(TokenType::IDENTIFIER, "event trigger")) return false;
         EventNode event;
-        event.trigger = currentToken.literal;
-        Advance();
+        std::string triggerStr;
+
+        while (currentToken.type == TokenType::IDENTIFIER || currentToken.type == TokenType::NUMBER) {
+            if (!triggerStr.empty()) triggerStr += " ";
+            triggerStr += currentToken.literal;
+            Advance();
+        }
+
+        if (triggerStr.empty()) {
+            error = "Parse error at line " + std::to_string(currentToken.line) +
+                ": expected event trigger after 'on'";
+            return false;
+        }
+        event.trigger = triggerStr;
 
         SkipNewlines();
 
@@ -197,7 +208,12 @@ namespace ar {
             SkipNewlines();
             if (currentToken.type == TokenType::RIGHT_BRACE) break;
 
-            if (!Expect(TokenType::IDENTIFIER, "event command")) return false;
+            if (currentToken.type != TokenType::IDENTIFIER && currentToken.type != TokenType::NUMBER) {
+                error = "Parse error at line " + std::to_string(currentToken.line) +
+                    ": expected event command, got " + TokenTypeToString(currentToken.type) +
+                    "('" + currentToken.literal + "')";
+                return false;
+            }
             event.commands.push_back(currentToken.literal);
             Advance();
             SkipNewlines();

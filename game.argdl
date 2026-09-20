@@ -1,670 +1,352 @@
 #Background Background
 {
-    x : 1500
+    x : 600
     y : 300
-    width : 3000
-    height : 600
-    sprite : "assets/background.jpg"
+    width : 1400
+    height : 800
+    sprite : "assets/backgroundBlack.png"
     parallax : 0.1
     skip_collision : on
 }
 
-#Player Character
+#Floor Platform
 {
-    x : 100
-    y : 536
-    size : 32
-    color : red
-    sprite : "assets/character.jpg"
-    speed : 320
-    jump_force : 500
-    mass : 1
-    gravity : on
-    friction : 0.4
-    restitution : 0
-    collider : box
-}
-
-#Ground1 Platform
-{
-    x : 400
-    y : 560
-    width : 800
+    x : 600
+    y : 580
+    width : 1100
     height : 40
-    color : green
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Ground2 Platform
-{
-    x : 1000
-    y : 560
-    width : 200
-    height : 40
-    color : green
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Ground3 Platform
-{
-    x : 1300
-    y : 560
-    width : 200
-    height : 40
-    color : green
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Ground4 Platform
-{
-    x : 1700
-    y : 560
-    width : 600
-    height : 40
-    color : green
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Ground5 Platform
-{
-    x : 2200
-    y : 560
-    width : 200
-    height : 40
-    color : green
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Ground6 Platform
-{
-    x : 2650
-    y : 560
-    width : 700
-    height : 40
-    color : green
-    sprite : "assets/dirt.jpg"
+    color : gray
+    sprite : "assets/meteorBig.png"
     kinematic : on
     collider : box
 }
 
 #WallLeft Platform
 {
-    x : 20
+    x : 50
     y : 300
     width : 40
-    height : 560
-    color : brown
-    sprite : "assets/dirt.jpg"
+    height : 600
+    color : gray
+    sprite : "assets/meteorBig.png"
     kinematic : on
     collider : box
 }
 
 #WallRight Platform
 {
-    x : 3000
+    x : 1150
     y : 300
     width : 40
-    height : 560
-    color : brown
-    sprite : "assets/dirt.jpg"
+    height : 600
+    color : gray
+    sprite : "assets/meteorBig.png"
     kinematic : on
     collider : box
 }
 
-#Pipe1 Platform
+#PlatformLeft Platform
 {
-    x : 400
-    y : 500
-    width : 40
-    height : 80
-    color : green
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Pipe2 Platform
-{
-    x : 650
-    y : 480
-    width : 40
-    height : 100
-    color : green
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Pipe3 Platform
-{
-    x : 1250
-    y : 500
-    width : 40
-    height : 80
-    color : green
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Pipe4 Platform
-{
-    x : 1650
-    y : 480
-    width : 40
-    height : 100
-    color : green
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Float1 Platform
-{
-    x : 550
-    y : 400
-    width : 120
-    height : 20
-    color : brown
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Float2 Platform
-{
-    x : 800
-    y : 340
-    width : 120
-    height : 20
-    color : brown
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Float3 Platform
-{
-    x : 1000
-    y : 400
-    width : 120
-    height : 20
-    color : brown
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Float4 Platform
-{
-    x : 1350
-    y : 340
-    width : 120
-    height : 20
-    color : brown
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Float5 Platform
-{
-    x : 1600
-    y : 400
-    width : 120
-    height : 20
-    color : brown
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Float6 Platform
-{
-    x : 1900
-    y : 340
-    width : 120
-    height : 20
-    color : brown
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Float7 Platform
-{
-    x : 2200
-    y : 400
-    width : 120
-    height : 20
-    color : brown
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Float8 Platform
-{
-    x : 2450
-    y : 340
-    width : 120
-    height : 20
-    color : brown
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#Block1 Item
-{
-    x : 300
+    x : 250
     y : 420
-    size : 32
-    color : yellow
-    sprite : "assets/dirt.jpg"
-    gravity : off
-    collider : box
-}
-
-#Block2 Item
-{
-    x : 500
-    y : 320
-    size : 32
-    color : yellow
-    sprite : "assets/dirt.jpg"
-    gravity : off
-    collider : box
-}
-
-#Block3 Item
-{
-    x : 750
-    y : 260
-    size : 32
-    color : yellow
-    sprite : "assets/dirt.jpg"
-    gravity : off
-    collider : box
-}
-
-#Block4 Item
-{
-    x : 1000
-    y : 320
-    size : 32
-    color : yellow
-    sprite : "assets/dirt.jpg"
-    gravity : off
-    collider : box
-}
-
-#Step1 Platform
-{
-    x : 2700
-    y : 520
-    width : 40
-    height : 40
-    color : brown
-    sprite : "assets/dirt.jpg"
+    width : 200
+    height : 20
+    color : gray
+    sprite : "assets/meteorSmall.png"
     kinematic : on
     collider : box
 }
 
-#Step2 Platform
+#PlatformRight Platform
 {
-    x : 2740
+    x : 950
+    y : 420
+    width : 200
+    height : 20
+    color : gray
+    sprite : "assets/meteorSmall.png"
+    kinematic : on
+    collider : box
+}
+
+#Player Character
+{
+    x : 600
     y : 500
-    width : 40
-    height : 80
-    color : brown
-    sprite : "assets/dirt.jpg"
-    kinematic : on
+    size : 32
+    color : cyan
+    sprite : "assets/playerShip1_blue.png"
+    speed : 380
+    jump_force : 600
+    mass : 1
+    gravity : on
+    friction : 0.5
+    restitution : 0
+    health : 10
+    invuln_duration : 1.5
+    knockback : 160
     collider : box
 }
 
-#Step3 Platform
+#TurretLeft Item
 {
-    x : 2780
-    y : 480
-    width : 40
-    height : 120
-    color : brown
-    sprite : "assets/dirt.jpg"
+    x : 250
+    y : 396
+    size : 40
+    color : red
+    sprite : "assets/turretBase_big.png"
+    mass : 999
+    gravity : off
     kinematic : on
+    health : 8
+    tag : Turret
     collider : box
 }
 
-#Step4 Platform
+#TurretRight Item
 {
-    x : 2820
-    y : 460
-    width : 40
-    height : 160
-    color : brown
-    sprite : "assets/dirt.jpg"
+    x : 950
+    y : 396
+    size : 40
+    color : red
+    sprite : "assets/turretBase_big.png"
+    mass : 999
+    gravity : off
     kinematic : on
-    collider : box
-}
-
-#Step5 Platform
-{
-    x : 2860
-    y : 440
-    width : 40
-    height : 200
-    color : brown
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#FlagBase Platform
-{
-    x : 2950
-    y : 540
-    width : 80
-    height : 40
-    color : yellow
-    sprite : "assets/dirt.jpg"
-    kinematic : on
-    collider : box
-}
-
-#FlagPole Platform
-{
-    x : 2950
-    y : 390
-    width : 16
-    height : 300
-    color : yellow
-    sprite : "assets/dirt.jpg"
-    kinematic : on
+    health : 8
+    tag : Turret
     collider : box
 }
 
 #Coin1 Item
 {
     x : 250
-    y : 520
+    y : 380
     size : 16
     color : yellow
-    sprite : "assets/coin.png"
+    sprite : "assets/powerupBlue.png"
     gravity : off
-    collider : box
     trigger : on
+    collider : box
 }
 
 #Coin2 Item
 {
-    x : 550
+    x : 950
     y : 380
     size : 16
     color : yellow
-    sprite : "assets/coin.png"
+    sprite : "assets/powerupBlue.png"
     gravity : off
-    collider : box
     trigger : on
+    collider : box
 }
 
 #Coin3 Item
 {
-    x : 600
-    y : 380
+    x : 150
+    y : 540
     size : 16
     color : yellow
-    sprite : "assets/coin.png"
+    sprite : "assets/powerupBlue.png"
     gravity : off
-    collider : box
     trigger : on
+    collider : box
 }
 
 #Coin4 Item
 {
-    x : 800
-    y : 320
+    x : 600
+    y : 540
     size : 16
     color : yellow
-    sprite : "assets/coin.png"
+    sprite : "assets/powerupBlue.png"
     gravity : off
-    collider : box
     trigger : on
+    collider : box
 }
 
 #Coin5 Item
 {
-    x : 850
-    y : 320
+    x : 1050
+    y : 540
     size : 16
     color : yellow
-    sprite : "assets/coin.png"
+    sprite : "assets/powerupBlue.png"
     gravity : off
-    collider : box
     trigger : on
+    collider : box
 }
 
 #Coin6 Item
 {
-    x : 1000
-    y : 380
+    x : 600
+    y : 280
     size : 16
     color : yellow
-    sprite : "assets/coin.png"
+    sprite : "assets/powerupBlue.png"
     gravity : off
-    collider : box
     trigger : on
+    collider : box
 }
 
-#Coin7 Item
+#PlayerBulletPrefab Prefab
 {
-    x : 1350
-    y : 320
-    size : 16
-    color : yellow
-    sprite : "assets/coin.png"
-    gravity : off
+    tag : PlayerBullet
+    size : 12
+    color : cyan
+    sprite : "assets/laserBlue01.png"
+    physics : off
     collider : box
-    trigger : on
+    projectile_speed : 900
+    projectile_lifetime : 0.6
+    projectile_damage : 1
 }
 
-#Coin8 Item
+#EnemyBulletPrefab Prefab
 {
-    x : 1400
-    y : 320
-    size : 16
-    color : yellow
-    sprite : "assets/coin.png"
-    gravity : off
+    tag : EnemyBullet
+    size : 10
+    color : red
+    sprite : "assets/laserRed01.png"
+    physics : off
     collider : box
-    trigger : on
+    projectile_speed : 260
+    projectile_lifetime : 3.0
+    projectile_damage : 1
 }
 
-#Coin9 Item
+#GruntPrefab Prefab
 {
-    x : 1600
-    y : 380
-    size : 16
-    color : yellow
-    sprite : "assets/coin.png"
-    gravity : off
+    tag : Enemy
+    size : 32
+    color : purple
+    sprite : "assets/enemyBlack1.png"
+    mass : 1
+    gravity : on
+    friction : 0.5
+    health : 2
     collider : box
-    trigger : on
+    patrol_min : 100
+    patrol_max : 1100
+    patrol_speed : 60
 }
 
-#Coin10 Item
+#BossPrefab Prefab
 {
-    x : 1900
-    y : 320
-    size : 16
-    color : yellow
-    sprite : "assets/coin.png"
-    gravity : off
+    tag : Enemy
+    size : 56
+    color : magenta
+    sprite : "assets/enemyRed1.png"
+    mass : 3
+    gravity : on
+    friction : 0.5
+    health : 15
+    boss : on
+    hp : 15
     collider : box
-    trigger : on
 }
 
-#Coin11 Item
+#SpawnerLeft Item
 {
-    x : 2200
-    y : 380
-    size : 16
-    color : yellow
-    sprite : "assets/coin.png"
+    x : 150
+    y : 100
+    size : 24
+    color : green
+    sprite : "assets/spaceStation_018.png"
+    mass : 999
     gravity : off
-    collider : box
-    trigger : on
+    kinematic : on
+    health : 4
+    tag : Spawner
+    skip_collision : on
+    spawn_every : 8
+    spawn_prefab : GruntPrefab
+    spawn_at_self : on
 }
 
-#Coin12 Item
+#SpawnerRight Item
 {
-    x : 2900
-    y : 360
-    size : 16
-    color : yellow
-    sprite : "assets/coin.png"
+    x : 1050
+    y : 100
+    size : 24
+    color : green
+    sprite : "assets/spaceStation_018.png"
+    mass : 999
     gravity : off
-    collider : box
-    trigger : on
+    kinematic : on
+    health : 4
+    tag : Spawner
+    skip_collision : on
+    spawn_every : 10
+    spawn_prefab : GruntPrefab
+    spawn_at_self : on
 }
 
 #Enemy1 Enemy
 {
-    x : 550
-    y : 524
+    x : 400
+    y : 540
     size : 32
     color : purple
-    sprite : "assets/boss.png"
+    sprite : "assets/enemyBlack1.png"
     mass : 1
     gravity : on
     friction : 0.5
+    health : 2
+    patrol_min : 200
+    patrol_max : 500
+    patrol_speed : 60
     collider : box
 }
 
 #Enemy2 Enemy
 {
-    x : 1050
-    y : 524
+    x : 800
+    y : 540
     size : 32
     color : purple
-    sprite : "assets/boss.png"
+    sprite : "assets/enemyBlack1.png"
     mass : 1
     gravity : on
     friction : 0.5
-    collider : box
-}
-
-#Enemy3 Enemy
-{
-    x : 1500
-    y : 524
-    size : 32
-    color : purple
-    sprite : "assets/boss.png"
-    mass : 1
-    gravity : on
-    friction : 0.5
-    collider : box
-}
-
-#Enemy4 Enemy
-{
-    x : 1950
-    y : 524
-    size : 32
-    color : purple
-    sprite : "assets/boss.png"
-    mass : 1
-    gravity : on
-    friction : 0.5
-    collider : box
-}
-
-#Enemy5 Enemy
-{
-    x : 2250
-    y : 524
-    size : 32
-    color : purple
-    sprite : "assets/boss.png"
-    mass : 1
-    gravity : on
-    friction : 0.5
-    collider : box
-}
-
-#Crate1 Item
-{
-    x : 900
-    y : 526
-    size : 28
-    color : orange
-    sprite : "assets/dirt.jpg"
-    mass : 0.6
-    gravity : on
-    restitution : 0.1
-    friction : 0.5
-    collider : box
-}
-
-#Crate2 Item
-{
-    x : 1450
-    y : 526
-    size : 28
-    color : orange
-    sprite : "assets/dirt.jpg"
-    mass : 0.6
-    gravity : on
-    restitution : 0.1
-    friction : 0.5
-    collider : box
-}
-
-#Crate3 Item
-{
-    x : 2100
-    y : 526
-    size : 28
-    color : orange
-    sprite : "assets/dirt.jpg"
-    mass : 0.6
-    gravity : on
-    restitution : 0.1
-    friction : 0.5
+    health : 2
+    patrol_min : 700
+    patrol_max : 1000
+    patrol_speed : 60
     collider : box
 }
 
 on a
 {
     move left
+    rotate 180
 }
 
 on d
 {
     move right
+    rotate 0
 }
 
 on left
 {
     move left
+    rotate 180
 }
 
 on right
 {
     move right
+    rotate 0
 }
 
 on space
+{
+    jump
+}
+
+on w
 {
     jump
 }
@@ -674,7 +356,44 @@ on up
     jump
 }
 
-on w
+on j
 {
-    jump
+    spawn PlayerBulletPrefab
+}
+
+on collide Coin
+{
+    despawn
+    heal Player 2
+    play pickup
+}
+
+on collide Enemy
+{
+    damage Player 1
+    damage 1
+    play hurt
+}
+
+on collide Turret
+{
+    damage Player 1
+    play hurt
+}
+
+on timer 4
+{
+    look_at TurretLeft Player
+    TurretLeft.spawn EnemyBulletPrefab
+}
+
+on timer 5
+{
+    look_at TurretRight Player
+    TurretRight.spawn EnemyBulletPrefab
+}
+
+on timer 60
+{
+    spawn BossPrefab at 600 100
 }

@@ -23,7 +23,7 @@ public:
     ar::Texture titleTexture;
 
     void OnInit() override {
-        bridge = new ar::RuntimeBridge(GetScene(), GetInput(), GetAudio());
+        bridge = new ar::RuntimeBridge(GetScene(), GetInput(), GetAudio(), GetCamera());
 
         std::ifstream file("game.argdl");
         if (!file) {
