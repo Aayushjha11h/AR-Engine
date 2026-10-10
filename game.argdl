@@ -1,35 +1,12 @@
-
-
-#Background Background {
-    x : 600
+#Backdrop Background {
+    x : 1000
     y : 300
-    width : 1400
+    width : 2200
     height : 800
     sprite : "assets/backgroundBlack.png"
-    parallax : 0.1
+    parallax : 0.15
     skip_collision : on
 }
-
-#Player Character {
-    x : 600
-    y : 500
-    size : 32
-    color : cyan
-    sprite : "assets/playerShip1_blue.png"
-    speed : 380
-    jump_force : 600
-    mass : 1
-    gravity : on
-    friction : 0.5
-    restitution : 0
-    health : 10
-    invuln_duration : 1.5
-    knockback : 160
-    collider : box
-    tag : Player
-}
-
-
 
 #Platform Blueprint {
     color : gray
@@ -43,13 +20,28 @@
 }
 
 #Coin Blueprint {
-    size : 16
+    size : 32
     color : yellow
     sprite : "assets/powerupBlue.png"
     gravity : off
     trigger : on
     collider : box
     tag : Coin
+}
+
+#BigCoin Blueprint extends Coin {
+    size : 44
+    color : green
+}
+
+#Portal Blueprint {
+    size : 60
+    color : cyan
+    sprite : "assets/powerupBlue.png"
+    gravity : off
+    trigger : on
+    collider : box
+    tag : Portal
 }
 
 #Turret Blueprint {
@@ -64,6 +56,12 @@
     collider : box
 }
 
+#HeavyTurret Blueprint extends Turret {
+    size : 52
+    health : 16
+    color : orange
+}
+
 #Bullet Blueprint {
     color : cyan
     sprite : "assets/laserBlue01.png"
@@ -74,19 +72,44 @@
 #PlayerBullet Blueprint extends Bullet {
     tag : PlayerBullet
     size : 12
-    projectile_speed : 900
-    projectile_lifetime : 0.6
+    projectile_speed : 1100
+    projectile_lifetime : 0.7
     projectile_damage : 1
+}
+
+#HeavyBullet Blueprint extends PlayerBullet {
+    size : 20
+    color : white
+    projectile_damage : 3
+    projectile_speed : 900
 }
 
 #EnemyBullet Blueprint extends Bullet {
     tag : EnemyBullet
-    size : 10
+    size : 12
     color : red
     sprite : "assets/laserRed01.png"
-    projectile_speed : 260
+    projectile_speed : 340
     projectile_lifetime : 3.0
     projectile_damage : 1
+}
+
+#Meteor Blueprint extends Bullet {
+    tag : Meteor
+    size : 36
+    color : orange
+    sprite : "assets/meteorBig.png"
+    projectile_speed : 280
+    projectile_lifetime : 6.0
+    projectile_damage : 2
+    projectile_angle : 90
+    projectile_friendly_tag : Enemy
+}
+
+#BigMeteor Blueprint extends Meteor {
+    size : 60
+    projectile_speed : 200
+    projectile_damage : 4
 }
 
 #Enemy Blueprint {
@@ -96,98 +119,171 @@
     mass : 1
     gravity : on
     friction : 0.5
-    health : 2
+    health : 3
     collider : box
-    patrol_speed : 60
     tag : Enemy
+    patrol_speed : 80
+    speed : 160
 }
 
 #Grunt Blueprint extends Enemy {
+    health : 2
     patrol_min : 100
-    patrol_max : 1100
+    patrol_max : 1900
 }
 
-#Boss Blueprint extends Enemy {
-    size : 56
-    color : magenta
+#Brute Blueprint extends Enemy {
+    size : 48
+    color : red
     sprite : "assets/enemyRed1.png"
     mass : 3
-    health : 15
+    health : 8
+    patrol_speed : 45
+    speed : 100
+    patrol_min : 200
+    patrol_max : 1800
+}
+
+#Hunter Blueprint extends Enemy {
+    size : 36
+    color : magenta
+    sprite : "assets/enemyRed1.png"
+    mass : 2
+    health : 4
     boss : on
-    hp : 15
+    hp : 4
+}
+
+#Boss Blueprint {
+    size : 80
+    color : magenta
+    sprite : "assets/enemyRed1.png"
+    mass : 6
+    gravity : on
+    friction : 0.5
+    collider : box
+    tag : Boss
+    boss : on
+    hp : 30
 }
 
 #Spawner Blueprint {
-    size : 24
+    size : 28
     color : green
     sprite : "assets/spaceStation_018.png"
     mass : 999
     gravity : off
     kinematic : on
-    health : 4
+    health : 6
     tag : Spawner
     skip_collision : on
     spawn_at_self : on
 }
 
+#Player Character {
+    x : 200
+    y : 480
+    size : 36
+    color : cyan
+    sprite : "assets/playerShip1_blue.png"
+    speed : 400
+    jump_force : 900
+    mass : 1
+    gravity : on
+    friction : 0.6
+    restitution : 0
+    health : 10
+    invuln_duration : 1.0
+    knockback : 180
+    collider : box
+    tag : Player
+    coins : 0
+    score : 0
+    wave : 1
+    survived : 0
+    combo : 0
+}
 
+#WallLeft Platform at 30 300 {
+    width : 40
+    height : 600
+}
 
-#Floor         Platform      at 600  580 {
-    width : 1100
+#WallRight Platform at 1970 300 {
+    width : 40
+    height : 600
+}
+
+#Ground1 Platform at 600 580 {
+    width : 1000
     height : 40
 }
 
-#WallLeft      Platform      at 50   300 {
-    width : 40
-    height : 600
+#Ground2 Platform at 1500 580 {
+    width : 400
+    height : 40
 }
 
-#WallRight     Platform      at 1150 300 {
-    width : 40
-    height : 600
-}
-
-#PlatformLeft  SmallPlatform at 250  420 {
-    width : 200
+#Float1 SmallPlatform at 350 460 {
+    width : 160
     height : 20
 }
 
-#PlatformRight SmallPlatform at 950  420 {
-    width : 200
+#Float2 SmallPlatform at 700 380 {
+    width : 160
     height : 20
 }
 
-#TurretLeft  Turret at 250 396
-#TurretRight Turret at 950 396
-
-#Coin1 Coin at 250  380
-#Coin2 Coin at 950  380
-#Coin3 Coin at 150  540
-#Coin4 Coin at 600  540
-#Coin5 Coin at 1050 540
-#Coin6 Coin at 600  280
-
-#SpawnerLeft  Spawner at 150  100 {
-    spawn_every : 8
-    spawn_prefab : Grunt
+#Float3 SmallPlatform at 1050 460 {
+    width : 160
+    height : 20
 }
 
-#SpawnerRight Spawner at 1050 100 {
+#Float4 SmallPlatform at 1400 400 {
+    width : 160
+    height : 20
+}
+
+#Float5 SmallPlatform at 1750 350 {
+    width : 160
+    height : 20
+}
+
+#Float6 SmallPlatform at 1000 260 {
+    width : 220
+    height : 20
+}
+
+#TurretLeft Turret at 350 436
+#TurretMid Turret at 1050 436
+#TurretRight HeavyTurret at 1750 326
+
+#Coin1 Coin at 350 420
+#Coin2 Coin at 700 340
+#Coin3 Coin at 1050 420
+#Coin4 Coin at 1400 360
+#Coin5 Coin at 1750 310
+#Coin6 Coin at 1000 220
+#Coin7 Coin at 200 540
+#Coin8 BigCoin at 1500 540
+#Coin9 BigCoin at 900 540
+
+#SpawnerLeft Spawner at 150 100 {
     spawn_every : 10
     spawn_prefab : Grunt
 }
 
-#Enemy1 Enemy at 400 540 {
-    patrol_min : 200
-    patrol_max : 500
+#SpawnerRight Spawner at 1850 100 {
+    spawn_every : 12
+    spawn_prefab : Grunt
 }
 
-#Enemy2 Enemy at 800 540 {
-    patrol_min : 700
-    patrol_max : 1000
-}
+#Enemy1 Grunt at 500 540
+#Enemy2 Grunt at 1000 540
+#Enemy3 Brute at 1500 540
+#Hunter1 Hunter at 800 200
 
-
+#ExitPortal Portal at 1600 500
 
 on a {
     move left
@@ -223,11 +319,24 @@ on up {
 
 on j {
     spawn PlayerBullet
+    set combo = $combo + 1
+    if $combo >= 3 {
+        spawn HeavyBullet
+        set combo = 0
+    }
 }
 
 on collide Coin {
     despawn
+    set coins = $coins + 1
     heal Player 2
+    play pickup
+}
+
+on collide BigCoin {
+    despawn
+    set coins = $coins + 1
+    heal Player 5
     play pickup
 }
 
@@ -235,23 +344,142 @@ on collide Enemy {
     damage Player 1
     damage 1
     play hurt
+    set combo = 0
 }
 
 on collide Turret {
     damage Player 1
     play hurt
+    set combo = 0
+}
+
+on collide Meteor {
+    damage Player 2
+    play hurt
+    set combo = 0
+}
+
+on collide Boss {
+    damage Player 3
+    play hurt
+    set combo = 0
+}
+
+on collide Portal if $survived >= 60 {
+    victory
+    play pickup
+}
+
+on collide Portal if $survived < 60 {
+    play hurt
+}
+
+on timer 1 {
+    set score = $score + 1
+    set survived = $survived + 1
+
+    if $survived == 10 {
+        set wave = 2
+    }
+    if $survived == 20 {
+        set wave = 3
+    }
+    if $survived == 30 {
+        set wave = 4
+    }
+    if $survived == 40 {
+        set wave = 5
+    }
+    if $survived == 50 {
+        play pickup
+    }
+}
+
+on timer 0.5 {
+    if distance_to Hunter1 < 500 {
+        Hunter1.move_toward Player
+    }
+    if exists Boss {
+        if distance_to Boss < 900 {
+            Boss.move_toward Player
+        }
+    }
 }
 
 on timer 4 {
     look_at TurretLeft Player
-    TurretLeft.spawn EnemyBullet
+    if distance_to TurretLeft < 800 {
+        TurretLeft.spawn EnemyBullet
+    }
 }
 
 on timer 5 {
-    look_at TurretRight Player
-    TurretRight.spawn EnemyBullet
+    look_at TurretMid Player
+    if distance_to TurretMid < 800 {
+        TurretMid.spawn EnemyBullet
+    }
 }
 
-on timer 60 {
-    spawn Boss at 600 100
+on timer 3 {
+    look_at TurretRight Player
+    if distance_to TurretRight < 1000 {
+        TurretRight.spawn EnemyBullet
+    }
+    if distance_to TurretRight < 1000 {
+        TurretRight.spawn EnemyBullet
+    }
+}
+
+on timer 6 {
+    spawn Meteor at 400 -60
+}
+
+on timer 8 {
+    spawn Meteor at 900 -60
+}
+
+on timer 7 {
+    spawn Meteor at 1400 -60
+}
+
+on timer 10 {
+    spawn BigMeteor at 700 -80
+}
+
+on timer 12 {
+    spawn BigMeteor at 1600 -80
+}
+
+on timer 15 if $wave >= 2 {
+    spawn Grunt at 300 100
+    spawn Grunt at 1700 100
+}
+
+on timer 8 if $wave >= 3 {
+    spawn Brute at 700 100
+}
+
+on timer 9 if $wave >= 4 {
+    set ex = random 300 1700
+    spawn Hunter at $ex 100
+}
+
+on timer 10 if $wave >= 5 {
+    spawn Grunt at 400 100
+    spawn Grunt at 900 100
+    spawn Grunt at 1400 100
+}
+
+on timer 12 if $wave >= 5 {
+    spawn Brute at 300 100
+    spawn Brute at 1500 100
+}
+
+after 2 {
+    play pickup
+}
+
+after 40 {
+    spawn Boss at 1000 -80
+    play hurt
 }

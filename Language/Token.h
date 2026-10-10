@@ -14,7 +14,21 @@ enum class TokenType {
     RIGHT_PAREN,
     NEWLINE,
     COMMA,
-    ERROR
+    ERROR,
+
+    DOLLAR,
+    EQUAL,
+    EQUAL_EQUAL,
+    NOT_EQUAL,
+    LESS,
+    GREATER,
+    LESS_EQUAL,
+    GREATER_EQUAL,
+    PLUS,
+    MINUS,
+    STAR,
+    SLASH,
+    PERCENT
 };
 
 std::string TokenTypeToString(TokenType type);

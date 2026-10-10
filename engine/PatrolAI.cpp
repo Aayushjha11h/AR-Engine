@@ -5,9 +5,16 @@
 namespace ar {
 
     void PatrolAI::Update(float dt) {
-        (void)dt;
         Entity* owner = GetOwner();
         if (!owner || !owner->Active) return;
+
+        // Yield to chase driver while its timeout is running.
+        if (Chasing) {
+            ChaseTimeout -= dt;
+            if (ChaseTimeout > 0.0f) return;
+            Chasing = false;
+            ChaseTimeout = 0.0f;
+        }
 
         auto* rb = owner->GetComponent<RigidBody>();
         if (rb) rb->Velocity.x = Direction * Speed;

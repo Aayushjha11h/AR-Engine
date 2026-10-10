@@ -12,6 +12,7 @@
 #include "../engine/Health.h"
 #include "../engine/Spawner.h"
 #include "../engine/Camera.h"
+#include "Statement.h"
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -61,6 +62,8 @@ namespace ar {
         // Public spawn helper used by Spawner callbacks.
         Entity* SpawnPrefabAt(const std::string& prefabName, const glm::vec2& position,
                               Entity* shooter = nullptr);
+
+        void ExecuteStatements(const std::vector<Statement>& statements, Entity* contextEntity = nullptr);
 
         std::string SoundPrefix = "sounds/";
         std::string SoundExtension = ".wav";

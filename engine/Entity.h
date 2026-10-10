@@ -6,6 +6,7 @@
 #include <memory>
 #include <type_traits>
 #include "Component.h"
+#include "../Language/Value.h"
 
 namespace ar {
 
@@ -14,6 +15,7 @@ namespace ar {
         std::string Name;
         std::string Tag;
         bool Active = true;
+        std::unordered_map<std::string, Value> Variables;
 
         Entity(const std::string& name = "Entity", const std::string& tag = "");
         ~Entity();

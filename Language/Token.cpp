@@ -15,6 +15,19 @@ std::string TokenTypeToString(TokenType type) {
     case TokenType::NEWLINE:      return "NEWLINE";
     case TokenType::COMMA:        return "COMMA";
     case TokenType::ERROR:        return "ERROR";
+    case TokenType::DOLLAR:       return "DOLLAR";
+    case TokenType::EQUAL:        return "EQUAL";
+    case TokenType::EQUAL_EQUAL:  return "EQUAL_EQUAL";
+    case TokenType::NOT_EQUAL:    return "NOT_EQUAL";
+    case TokenType::LESS:         return "LESS";
+    case TokenType::GREATER:      return "GREATER";
+    case TokenType::LESS_EQUAL:   return "LESS_EQUAL";
+    case TokenType::GREATER_EQUAL:return "GREATER_EQUAL";
+    case TokenType::PLUS:         return "PLUS";
+    case TokenType::MINUS:        return "MINUS";
+    case TokenType::STAR:         return "STAR";
+    case TokenType::SLASH:        return "SLASH";
+    case TokenType::PERCENT:      return "PERCENT";
     default:                      return "UNKNOWN";
     }
 }

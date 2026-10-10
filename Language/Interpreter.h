@@ -24,10 +24,17 @@ namespace ar {
     };
 
     // Flattened event handler.
-    // Commands are stored exactly as the Parser produced them.
     struct ScriptEvent {
         std::string trigger;
-        std::vector<std::string> commands;
+        std::unique_ptr<Expr> guard;
+        std::vector<Statement> body;
+
+        ScriptEvent() = default;
+        ~ScriptEvent() = default;
+        ScriptEvent(const ScriptEvent&) = delete;
+        ScriptEvent& operator=(const ScriptEvent&) = delete;
+        ScriptEvent(ScriptEvent&&) noexcept = default;
+        ScriptEvent& operator=(ScriptEvent&&) noexcept = default;
 
         std::string ToString() const;
     };
@@ -41,8 +48,8 @@ namespace ar {
         Interpreter();
 
         // Load and validate the AST.
-        // Returns true if the script is well-formed.
-        bool Load(const AST& ast);
+        // Takes non-const AST reference to move nodes without deep copies.
+        bool Load(AST& ast);
 
         // --- API for the Runtime Bridge ---
 
@@ -53,14 +60,6 @@ namespace ar {
         // Look up a specific object by name. Returns nullptr if not found.
         const ScriptObject* GetObject(const std::string& name) const;
         const ScriptObject* GetBlueprint(const std::string& name) const;
-
-        // Look up event commands by trigger. Returns nullptr if not found.
-        const std::vector<std::string>* GetEventCommands(const std::string& trigger) const;
-
-        // Execute every command in an event by calling 'handler' once per command.
-        // The handler is provided by the Runtime Bridge.
-        void ExecuteEvent(const std::string& trigger,
-            const std::function<void(const std::string&)>& handler) const;
 
         // Error reporting
         bool HasError() const { return !error.empty(); }
@@ -76,7 +75,7 @@ namespace ar {
         bool ProcessObject(const ObjectNode& node);
        
         bool ProcessInstance(const InstanceNode& node);
-        bool ProcessEvent(const EventNode& node);
+        bool ProcessEvent(EventNode& node);
         ScriptObject ResolveBlueprint(const std::string& name,
             std::unordered_set<std::string>& visiting);
     };

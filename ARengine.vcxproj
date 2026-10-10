@@ -166,6 +166,8 @@
     <ClCompile Include="Language\Parser.cpp" />
     <ClCompile Include="Language\RuntimeBridge.cpp" />
     <ClCompile Include="Language\Token.cpp" />
+    <ClCompile Include="Language\Value.cpp" />
+    <ClCompile Include="Language\Expr.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -195,6 +197,9 @@
     <ClInclude Include="Language\Parser.h" />
     <ClInclude Include="Language\RuntimeBridge.h" />
     <ClInclude Include="Language\Token.h" />
+    <ClInclude Include="Language\Value.h" />
+    <ClInclude Include="Language\Expr.h" />
+    <ClInclude Include="Language\Statement.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -40,8 +40,15 @@ void Lexer::SkipComment() {
 }
 
 Token Lexer::NextToken() {
-    SkipWhitespace();
-    SkipComment();
+    while (true) {
+        SkipWhitespace();
+        if (currentChar == '/' && PeekChar() == '/') {
+            SkipComment();
+        }
+        else {
+            break;
+        }
+    }
 
     Token token;
 
@@ -95,14 +102,87 @@ Token Lexer::NextToken() {
         token = ReadString();
         break;
 
+    case '$':
+        token = MakeToken(TokenType::DOLLAR, "$");
+        ReadChar();
+        break;
+
+    case '=':
+        if (PeekChar() == '=') {
+            ReadChar();
+            ReadChar();
+            token = MakeToken(TokenType::EQUAL_EQUAL, "==");
+        }
+        else {
+            token = MakeToken(TokenType::EQUAL, "=");
+            ReadChar();
+        }
+        break;
+
+    case '!':
+        if (PeekChar() == '=') {
+            ReadChar();
+            ReadChar();
+            token = MakeToken(TokenType::NOT_EQUAL, "!=");
+        }
+        else {
+            token = MakeToken(TokenType::ERROR, "!");
+            ReadChar();
+        }
+        break;
+
+    case '<':
+        if (PeekChar() == '=') {
+            ReadChar();
+            ReadChar();
+            token = MakeToken(TokenType::LESS_EQUAL, "<=");
+        }
+        else {
+            token = MakeToken(TokenType::LESS, "<");
+            ReadChar();
+        }
+        break;
+
+    case '>':
+        if (PeekChar() == '=') {
+            ReadChar();
+            ReadChar();
+            token = MakeToken(TokenType::GREATER_EQUAL, ">=");
+        }
+        else {
+            token = MakeToken(TokenType::GREATER, ">");
+            ReadChar();
+        }
+        break;
+
+    case '+':
+        token = MakeToken(TokenType::PLUS, "+");
+        ReadChar();
+        break;
+
     case '-':
         if (IsDigit(PeekChar())) {
             token = ReadNumber();
         }
         else {
-            token = MakeToken(TokenType::ERROR, "-");
+            token = MakeToken(TokenType::MINUS, "-");
             ReadChar();
         }
+        break;
+
+    case '*':
+        token = MakeToken(TokenType::STAR, "*");
+        ReadChar();
+        break;
+
+    case '/':
+        token = MakeToken(TokenType::SLASH, "/");
+        ReadChar();
+        break;
+
+    case '%':
+        token = MakeToken(TokenType::PERCENT, "%");
+        ReadChar();
         break;
 
     default:

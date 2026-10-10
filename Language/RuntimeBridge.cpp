@@ -87,6 +87,23 @@ namespace ar {
         m_MovedHorizontalThisFrame = false;
         m_MovedVerticalThisFrame = false;
 
+        auto containsJump = [](const auto& self, const std::vector<Statement>& body) -> bool {
+            for (const auto& stmt : body) {
+                if (stmt.kind == StatementKind::Command) {
+                    for (const auto& tok : stmt.tokens) {
+                        if (tok == "jump") return true;
+                    }
+                }
+                else if (stmt.kind == StatementKind::If) {
+                    if (self(self, stmt.body) || self(self, stmt.elseBody)) return true;
+                }
+                else if (stmt.kind == StatementKind::While || stmt.kind == StatementKind::For || stmt.kind == StatementKind::Block) {
+                    if (self(self, stmt.body)) return true;
+                }
+            }
+            return false;
+        };
+
         for (const auto& scriptEvent : interpreter.GetEvents()) {
             const std::string& trigger = scriptEvent.trigger;
             if (trigger.size() >= 8 && trigger.substr(0, 8) == "collide ") continue;
@@ -96,16 +113,16 @@ namespace ar {
             int scancode = StringToScancode(trigger);
             if (scancode < 0) continue;
 
-            bool isJumpEvent = false;
-            for (const auto& cmd : scriptEvent.commands) {
-                if (cmd == "jump") { isJumpEvent = true; break; }
-            }
+            bool isJumpEvent = containsJump(containsJump, scriptEvent.body);
 
             bool shouldFire = isJumpEvent ? input->IsKeyPressed(scancode)
                 : input->IsKeyDown(scancode);
 
             if (shouldFire) {
-                ExecuteCommands(scriptEvent.commands, playerEntity);
+                if (scriptEvent.guard && !scriptEvent.guard->Eval(Expr::Context{ playerEntity, this }).AsBool()) {
+                    continue;
+                }
+                ExecuteStatements(scriptEvent.body, playerEntity);
             }
         }
 
@@ -534,7 +551,8 @@ namespace ar {
                 acc += dt;
                 if (acc >= delay) {
                     m_AfterFired.insert(trig);
-                    ExecuteCommands(ev.commands, playerEntity);
+                    if (ev.guard && !ev.guard->Eval(Expr::Context{ playerEntity, this }).AsBool()) continue;
+                    ExecuteStatements(ev.body, playerEntity);
                 }
                 continue;
             }
@@ -548,7 +566,8 @@ namespace ar {
             if (acc >= period) {
                 acc -= period;
                 if (acc >= period) acc = 0.0f;
-                ExecuteCommands(ev.commands, playerEntity);
+                if (ev.guard && !ev.guard->Eval(Expr::Context{ playerEntity, this }).AsBool()) continue;
+                ExecuteStatements(ev.body, playerEntity);
             }
         }
     }
@@ -643,7 +662,11 @@ namespace ar {
                     fk.entityKey = hashFn(e.NameA);
                     fk.triggerHash = hashFn(trigger);
                     if (firedEntityEvent.insert(fk).second) {
-                        if (aEntPtr) ExecuteCommands(scriptEvent.commands, aEntPtr);
+                        if (aEntPtr) {
+                            if (!scriptEvent.guard || scriptEvent.guard->Eval(Expr::Context{ aEntPtr, this }).AsBool()) {
+                                ExecuteStatements(scriptEvent.body, aEntPtr);
+                            }
+                        }
                     }
                 }
                 if (matchB && aIsPlayer && (e.NameB != e.NameA)) {
@@ -651,7 +674,11 @@ namespace ar {
                     fk.entityKey = hashFn(e.NameB);
                     fk.triggerHash = hashFn(trigger);
                     if (firedEntityEvent.insert(fk).second) {
-                        if (bEntPtr) ExecuteCommands(scriptEvent.commands, bEntPtr);
+                        if (bEntPtr) {
+                            if (!scriptEvent.guard || scriptEvent.guard->Eval(Expr::Context{ bEntPtr, this }).AsBool()) {
+                                ExecuteStatements(scriptEvent.body, bEntPtr);
+                            }
+                        }
                     }
                 }
             }
@@ -694,6 +721,100 @@ namespace ar {
         }
     }
 
+    void RuntimeBridge::ExecuteStatements(const std::vector<Statement>& statements, Entity* contextEntity) {
+        Entity* prevContext = m_ContextEntity;
+        m_ContextEntity = contextEntity;
+
+        for (const auto& stmt : statements) {
+            switch (stmt.kind) {
+            case StatementKind::Command: {
+                std::vector<std::string> resolvedTokens = stmt.tokens;
+                for (auto& tok : resolvedTokens) {
+                    if (tok.size() > 1 && tok[0] == '$') {
+                        std::string varName = tok.substr(1);
+                        if (m_ContextEntity) {
+                            auto it = m_ContextEntity->Variables.find(varName);
+                            if (it != m_ContextEntity->Variables.end()) {
+                                tok = it->second.AsString();
+                            }
+                        }
+                    }
+                }
+                size_t index = 0;
+                while (index < resolvedTokens.size()) {
+                    DispatchCommand(resolvedTokens, index);
+                }
+                break;
+            }
+            case StatementKind::Set: {
+                if (m_ContextEntity && stmt.valueExpr) {
+                    Expr::Context ctx{ m_ContextEntity, this };
+                    m_ContextEntity->Variables[stmt.varName] = stmt.valueExpr->Eval(ctx);
+                }
+                break;
+            }
+            case StatementKind::If: {
+                Expr::Context ctx{ m_ContextEntity, this };
+                bool cond = stmt.condition ? stmt.condition->Eval(ctx).AsBool() : false;
+                if (cond) {
+                    ExecuteStatements(stmt.body, m_ContextEntity);
+                }
+                else if (!stmt.elseBody.empty()) {
+                    ExecuteStatements(stmt.elseBody, m_ContextEntity);
+                }
+                break;
+            }
+            case StatementKind::While: {
+                Expr::Context ctx{ m_ContextEntity, this };
+                int iterations = 0;
+                while (stmt.condition && stmt.condition->Eval(ctx).AsBool() && iterations < 10000) {
+                    ExecuteStatements(stmt.body, m_ContextEntity);
+                    iterations++;
+                }
+                break;
+            }
+           case StatementKind::For: {
+    if (m_ContextEntity) {
+        Expr::Context ctx{ m_ContextEntity, this };
+        int64_t start = stmt.startExpr ? stmt.startExpr->Eval(ctx).AsInt() : 0;
+        int64_t end = stmt.endExpr ? stmt.endExpr->Eval(ctx).AsInt() : 0;
+
+        int iterations = 0;
+        const int kMaxIterations = 10000;
+
+        if (start <= end) {
+            for (int64_t i = start; i <= end; ++i) {
+                if (++iterations > kMaxIterations) {
+                    std::cout << "[Runtime] for loop capped at 10000 iterations\n";
+                    break;
+                }
+                m_ContextEntity->Variables[stmt.varName] = Value::Int(i);
+                ExecuteStatements(stmt.body, m_ContextEntity);
+            }
+        }
+        else {
+            for (int64_t i = start; i >= end; --i) {
+                if (++iterations > kMaxIterations) {
+                    std::cout << "[Runtime] for loop capped at 10000 iterations\n";
+                    break;
+                }
+                m_ContextEntity->Variables[stmt.varName] = Value::Int(i);
+                ExecuteStatements(stmt.body, m_ContextEntity);
+            }
+        }
+    }
+    break;
+}
+            case StatementKind::Block: {
+                ExecuteStatements(stmt.body, m_ContextEntity);
+                break;
+            }
+            }
+        }
+
+        m_ContextEntity = prevContext;
+    }
+
     void RuntimeBridge::DispatchCommand(const std::vector<std::string>& commands, size_t& index) {
         std::string token = commands[index];
         ++index;
@@ -707,7 +828,7 @@ namespace ar {
             if (!explicitTarget) {
                 std::cout << "[RuntimeBridge] WARNING: entity '" << targetName
                           << "' not found for command '" << token << "', skipping.\n";
-                if (token == "move" || token == "gravity" || token == "play") {
+                if (token == "move" || token == "move_toward" || token == "gravity" || token == "play") {
                     if (index < commands.size()) ++index;
                 }
                 else if (token == "apply_force") {
@@ -755,6 +876,63 @@ namespace ar {
                 ++index;
             }
         }
+        else if (token == "move_toward") {
+    if (index < commands.size()) {
+        std::string targetName = commands[index];
+        ++index;
+        Entity* targetEnt = ResolveTarget(targetName);
+        if (defaultTarget && targetEnt) {
+            auto* selfTransform = defaultTarget->GetComponent<Transform>();
+            auto* targetTransform = targetEnt->GetComponent<Transform>();
+            auto* rb = defaultTarget->GetComponent<RigidBody>();
+            if (selfTransform && targetTransform && rb) {
+                float diffX = targetTransform->Position.x - selfTransform->Position.x;
+                float dir = 0.0f;
+                if (diffX > 1.0f) dir = 1.0f;
+                else if (diffX < -1.0f) dir = -1.0f;
+
+                float speed = 100.0f;
+                const ScriptObject* obj = interpreter.GetObject(defaultTarget->Name);
+                if (!obj) {
+                    for (const auto& [pname, pobj] : m_Prefabs) {
+                        if (defaultTarget->Tag == pobj.name || defaultTarget->Tag == pobj.type) {
+                            obj = &pobj;
+                            break;
+                        }
+                    }
+                }
+                if (!obj) {
+                    for (const auto& [bname, bobj] : m_Blueprints) {
+                        if (defaultTarget->Tag == bname) {
+                            obj = &bobj;
+                            break;
+                        }
+                    }
+                }
+                if (obj) {
+                    auto it = obj->properties.find("speed");
+                    if (it == obj->properties.end()) it = obj->properties.find("patrol_speed");
+                    if (it != obj->properties.end()) speed = ParseFloat(it->second, 100.0f);
+                }
+                auto vit = defaultTarget->Variables.find("speed");
+                if (vit != defaultTarget->Variables.end()) {
+                    speed = static_cast<float>(vit->second.AsNumber());
+                }
+
+                rb->Velocity.x = dir * speed;
+
+                if (auto* patrol = defaultTarget->GetComponent<PatrolAI>()) {
+                    patrol->Chasing = true;
+                    patrol->ChaseTimeout = 1.5f;
+                }
+
+                if (defaultTarget == playerEntity) {
+                    m_MovedHorizontalThisFrame = true;
+                }
+            }
+        }
+    }
+}
         else if (token == "gravity") {
             if (index < commands.size()) {
                 CmdGravity(defaultTarget, ParseBool(commands[index]));

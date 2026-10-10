@@ -15,16 +15,14 @@ namespace ar {
 
     std::string ScriptEvent::ToString() const {
         std::string result = "ScriptEvent(" + trigger + ") {\n";
-        for (const auto& cmd : commands) {
-            result += "    " + cmd + "\n";
-        }
+        result += "    // statements\n";
         result += "}";
         return result;
     }
 
     Interpreter::Interpreter() = default;
 
-    bool Interpreter::Load(const AST& ast) {
+    bool Interpreter::Load(AST& ast) {
         objects.clear();
         events.clear();
         blueprints.clear();
@@ -55,7 +53,7 @@ namespace ar {
             if (!ProcessInstance(instNode)) return false;
         }
 
-        for (const auto& evtNode : ast.events) {
+        for (auto& evtNode : ast.events) {
             if (!ProcessEvent(evtNode)) return false;
         }
 
@@ -73,22 +71,6 @@ namespace ar {
         auto it = blueprints.find(name);
         if (it == blueprints.end()) return nullptr;
         return &it->second;
-    }
-
-    const std::vector<std::string>* Interpreter::GetEventCommands(const std::string& trigger) const {
-        for (const auto& evt : events) {
-            if (evt.trigger == trigger) return &evt.commands;
-        }
-        return nullptr;
-    }
-
-    void Interpreter::ExecuteEvent(const std::string& trigger,
-        const std::function<void(const std::string&)>& handler) const {
-        const auto* commands = GetEventCommands(trigger);
-        if (!commands) return;
-        for (const auto& cmd : *commands) {
-            handler(cmd);
-        }
     }
 
     bool Interpreter::ProcessObject(const ObjectNode& node) {
@@ -188,20 +170,23 @@ namespace ar {
         return true;
     }
 
-    bool Interpreter::ProcessEvent(const EventNode& node) {
-        for (auto& existing : events) {
-            if (existing.trigger == node.trigger) {
-                existing.commands.insert(existing.commands.end(),
-                    node.commands.begin(),
-                    node.commands.end());
-                return true;
+    bool Interpreter::ProcessEvent(EventNode& node) {
+        if (!node.guard) {
+            for (auto& existing : events) {
+                if (existing.trigger == node.trigger && !existing.guard) {
+                    existing.body.insert(existing.body.end(),
+                        std::make_move_iterator(node.body.begin()),
+                        std::make_move_iterator(node.body.end()));
+                    return true;
+                }
             }
         }
 
         ScriptEvent evt;
         evt.trigger = node.trigger;
-        evt.commands = node.commands;
-        events.push_back(evt);
+        evt.guard = std::move(node.guard);
+        evt.body = std::move(node.body);
+        events.push_back(std::move(evt));
         return true;
     }
 

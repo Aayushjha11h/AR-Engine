@@ -1,8 +1,11 @@
 #pragma once
 #include "Token.h"
 #include "Lexer.h"
+#include "Statement.h"
+#include "Expr.h"
 #include <vector>
 #include <string>
+#include <memory>
 
 namespace ar {
 
@@ -62,10 +65,18 @@ namespace ar {
         std::string ToString() const;
     };
 
-    // on Trigger { commands }
+    // on Trigger [if Guard] { body }
     struct EventNode {
         std::string trigger;
-        std::vector<std::string> commands;
+        std::unique_ptr<Expr> guard;
+        std::vector<Statement> body;
+
+        EventNode() = default;
+        ~EventNode() = default;
+        EventNode(const EventNode&) = delete;
+        EventNode& operator=(const EventNode&) = delete;
+        EventNode(EventNode&&) noexcept = default;
+        EventNode& operator=(EventNode&&) noexcept = default;
 
         std::string ToString() const;
     };
@@ -76,6 +87,13 @@ namespace ar {
         std::vector<BlueprintNode> blueprints;
         std::vector<InstanceNode> instances;
         std::vector<EventNode> events;
+
+        AST() = default;
+        ~AST() = default;
+        AST(const AST&) = delete;
+        AST& operator=(const AST&) = delete;
+        AST(AST&&) noexcept = default;
+        AST& operator=(AST&&) noexcept = default;
 
         std::string ToString() const;
     };
@@ -92,6 +110,7 @@ namespace ar {
         bool Parse();
 
         // Access the parsed AST.
+        AST& GetAST() { return ast; }
         const AST& GetAST() const { return ast; }
 
         // If Parse() returned false, this holds the error message.
@@ -121,6 +140,19 @@ namespace ar {
         bool ParseProperty(BlueprintNode& blueprint);
         bool ParseProperty(InstanceNode& instance);
         bool ParseProperty(std::vector<Property>& properties);
+
+        bool ParseBlock(std::vector<Statement>& body);
+        bool ParseStatement(std::vector<Statement>& body);
+
+        std::unique_ptr<Expr> ParseExpr();
+        std::unique_ptr<Expr> ParseOr();
+        std::unique_ptr<Expr> ParseAnd();
+        std::unique_ptr<Expr> ParseEquality();
+        std::unique_ptr<Expr> ParseComparison();
+        std::unique_ptr<Expr> ParseAdditive();
+        std::unique_ptr<Expr> ParseMultiplicative();
+        std::unique_ptr<Expr> ParseUnary();
+        std::unique_ptr<Expr> ParsePrimary();
     };
 
 } // namespace ar
