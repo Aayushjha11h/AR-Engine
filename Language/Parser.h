@@ -42,6 +42,26 @@ namespace ar {
         std::string ToString() const;
     };
 
+    // #Name Blueprint extends Parent { properties }
+    struct BlueprintNode {
+        std::string name;
+        std::string parent;
+        std::vector<Property> properties;
+
+        std::string ToString() const;
+    };
+
+    // #Name BlueprintName at x y { overrides }
+    struct InstanceNode {
+        std::string name;
+        std::string blueprintName;
+        float x = 0.0f;
+        float y = 0.0f;
+        std::vector<Property> overrides;
+
+        std::string ToString() const;
+    };
+
     // on Trigger { commands }
     struct EventNode {
         std::string trigger;
@@ -53,6 +73,8 @@ namespace ar {
     // Root AST container returned after parsing.
     struct AST {
         std::vector<ObjectNode> objects;
+        std::vector<BlueprintNode> blueprints;
+        std::vector<InstanceNode> instances;
         std::vector<EventNode> events;
 
         std::string ToString() const;
@@ -92,8 +114,13 @@ namespace ar {
 
         // Grammar handlers
         bool ParseObject();
+        bool ParseBlueprint(const std::string& name);
+        bool ParseInstance(const std::string& name, const std::string& type);
         bool ParseEvent();
         bool ParseProperty(ObjectNode& object);
+        bool ParseProperty(BlueprintNode& blueprint);
+        bool ParseProperty(InstanceNode& instance);
+        bool ParseProperty(std::vector<Property>& properties);
     };
 
 } // namespace ar

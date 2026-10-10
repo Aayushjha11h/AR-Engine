@@ -33,12 +33,13 @@ namespace ar {
     }
 
     AABB Collider::GetWorldBounds() const {
-        Transform* t = GetOwner()->GetComponent<Transform>();
+        Entity* owner = GetOwner();
+        Transform* t = owner ? owner->GetComponent<Transform>() : nullptr;
         glm::vec2 pos = t ? t->Position : glm::vec2(0.0f);
         glm::vec2 scl = t ? t->Scale : glm::vec2(1.0f);
 
         glm::vec2 worldPos = pos + Offset;
-        glm::vec2 halfSize = Size * scl * 0.5f;
+        glm::vec2 halfSize = glm::abs(Size * scl) * 0.5f;
 
         return AABB(worldPos - halfSize, worldPos + halfSize);
     }

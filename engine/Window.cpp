@@ -22,10 +22,16 @@ namespace ar {
 
         m_Window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
             width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
-        if (!m_Window) { std::cerr << "[AR] Window failed\n"; return false; }
+        if (!m_Window) { std::cerr << "[AR] Window failed\n"; SDL_Quit(); return false; }
 
         m_GLContext = SDL_GL_CreateContext(m_Window);
-        if (!m_GLContext) { std::cerr << "[AR] GL Context failed\n"; return false; }
+        if (!m_GLContext) {
+            std::cerr << "[AR] GL Context failed\n";
+            SDL_DestroyWindow(m_Window);
+            m_Window = nullptr;
+            SDL_Quit();
+            return false;
+        }
 
         glewExperimental = GL_TRUE;
         if (glewInit() != GLEW_OK) { std::cerr << "[AR] GLEW failed\n"; return false; }

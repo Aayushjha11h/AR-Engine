@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <functional>
 
 namespace ar {
@@ -47,9 +48,11 @@ namespace ar {
 
         const std::vector<ScriptObject>& GetObjects() const { return objects; }
         const std::vector<ScriptEvent>& GetEvents() const { return events; }
+        const std::unordered_map<std::string, ScriptObject>& GetBlueprints() const { return blueprints; }
 
         // Look up a specific object by name. Returns nullptr if not found.
         const ScriptObject* GetObject(const std::string& name) const;
+        const ScriptObject* GetBlueprint(const std::string& name) const;
 
         // Look up event commands by trigger. Returns nullptr if not found.
         const std::vector<std::string>* GetEventCommands(const std::string& trigger) const;
@@ -66,10 +69,16 @@ namespace ar {
     private:
         std::vector<ScriptObject> objects;
         std::vector<ScriptEvent> events;
+        std::unordered_map<std::string, ScriptObject> blueprints;
+        std::unordered_map<std::string, BlueprintNode> blueprintDefs;
         std::string error;
 
         bool ProcessObject(const ObjectNode& node);
+       
+        bool ProcessInstance(const InstanceNode& node);
         bool ProcessEvent(const EventNode& node);
+        ScriptObject ResolveBlueprint(const std::string& name,
+            std::unordered_set<std::string>& visiting);
     };
 
 } // namespace ar

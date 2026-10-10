@@ -6,6 +6,8 @@
 
 namespace ar {
 
+    class Entity;
+
     class Spawner : public Component {
     public:
         std::string PrefabName;
@@ -17,8 +19,8 @@ namespace ar {
         bool SpawnAtSelf = true;      // if true, offset added to owner position
         bool Active = true;
 
-        // Provided by RuntimeBridge: (prefabName, worldPos)
-        std::function<void(const std::string&, const glm::vec2&)> SpawnCallback;
+        // Provided by RuntimeBridge: (prefabName, worldPos) -> spawned entity (nullptr on failure)
+        std::function<Entity*(const std::string&, const glm::vec2&)> SpawnCallback;
 
         void Update(float dt) override;
 

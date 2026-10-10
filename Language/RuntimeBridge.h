@@ -86,6 +86,7 @@ namespace ar {
         Texture* m_BackgroundTexture = nullptr;
 
         std::unordered_map<std::string, ScriptObject> m_Prefabs;
+        std::unordered_map<std::string, ScriptObject> m_Blueprints;
         std::vector<CollisionEventEntry>              m_PendingCollisions;
         Entity* m_ContextEntity = nullptr;
         int     m_SpawnCounter  = 0;

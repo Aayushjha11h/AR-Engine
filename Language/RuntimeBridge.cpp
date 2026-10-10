@@ -55,6 +55,7 @@ namespace ar {
         m_PlayerDead = false;
         m_BackgroundTexture = nullptr;
         m_Prefabs.clear();
+        m_Blueprints.clear();
         m_PendingCollisions.clear();
         m_ContextEntity = nullptr;
         m_SpawnCounter = 0;
@@ -105,6 +106,16 @@ namespace ar {
 
             if (shouldFire) {
                 ExecuteCommands(scriptEvent.commands, playerEntity);
+            }
+        }
+
+        // Re-point any boss that was built (or prefab-spawned) before the player
+        // entity existed; without this its AI never engages.
+        for (auto& [name, ent] : entities) {
+            if (!ent) continue;
+            if (auto* boss = ent->GetComponent<BossAI>()) {
+                if (boss->PlayerTarget != playerEntity)
+                    boss->PlayerTarget = playerEntity;
             }
         }
 
@@ -351,8 +362,8 @@ namespace ar {
 
                 RuntimeBridge* self = this;
                 Entity* owner = entity;
-                sp->SpawnCallback = [self, owner](const std::string& pName, const glm::vec2& pos) {
-                    self->SpawnPrefabAt(pName, pos, owner);
+                sp->SpawnCallback = [self, owner](const std::string& pName, const glm::vec2& pos) -> Entity* {
+                    return self->SpawnPrefabAt(pName, pos, owner);
                 };
             }
         }
@@ -445,6 +456,8 @@ namespace ar {
                 boss->Health = static_cast<int>(ParseFloat(itHp->second, 3.0f));
                 boss->MaxHealth = boss->Health;
             }
+            // PlayerTarget is resolved lazily below / in BuildObjects because the
+            // player may be declared after this entity in the script.
             boss->PlayerTarget = playerEntity;
         }
         else if (wantsPatrol || scriptObj.type == "Enemy") {
@@ -479,10 +492,18 @@ namespace ar {
     }
 
     bool RuntimeBridge::BuildObjects() {
+        for (const auto& [name, scriptObj] : interpreter.GetBlueprints()) {
+            m_Blueprints[name] = scriptObj;
+            std::cout << "[RuntimeBridge] Registered blueprint: " << name << "\n";
+        }
+
         for (const auto& scriptObj : interpreter.GetObjects()) {
             if (scriptObj.type == "Prefab") {
                 m_Prefabs[scriptObj.name] = scriptObj;
                 std::cout << "[RuntimeBridge] Registered prefab: " << scriptObj.name << "\n";
+                continue;
+            }
+            if (scriptObj.type == "Blueprint") {
                 continue;
             }
             BuildEntityFromScript(scriptObj.name, scriptObj);
@@ -705,9 +726,17 @@ namespace ar {
                     if (index < commands.size()) ++index;
                 }
                 else if (token == "spawn") {
-                    if (index < commands.size()) ++index;
+                    // Mirror the real spawn parsing so the skip stays in sync:
+                    // prefab name, optional "at", then either a target name or an x y pair.
+                    if (index < commands.size()) ++index; // prefab name
+                    if (index < commands.size() && commands[index] == "at") ++index;
                     if (index < commands.size()) {
-                        if (commands[index - 1] == "at") { if (index < commands.size()) ++index; }
+                        if (LooksLikeNumber(commands[index])) {
+                            ++index; // x
+                            if (index < commands.size()) ++index; // y
+                        } else {
+                            ++index; // location target name
+                        }
                     }
                 }
                 return;
@@ -780,8 +809,18 @@ namespace ar {
             if (index < commands.size()) {
                 const std::string& nextTok = commands[index];
                 if (!LooksLikeNumber(nextTok) && !nextTok.empty()) {
-                    Entity* named = GetEntity(nextTok);
-                    if (named) { t = named; ++index; }
+                    // Only treat the next token as a target name if it is not
+                    // itself a known command; otherwise it must be dispatched.
+                    static const std::unordered_set<std::string> kCommands = {
+                        "jump", "move", "gravity", "play", "victory", "spawn",
+                        "despawn", "apply_force", "damage", "heal", "look_at", "rotate"
+                    };
+                    bool isCommand = kCommands.count(nextTok) != 0 ||
+                        nextTok.find('.') != std::string::npos;
+                    if (!isCommand) {
+                        Entity* named = GetEntity(nextTok);
+                        if (named) { t = named; ++index; }
+                    }
                 }
             }
             CmdDespawn(t);
@@ -892,9 +931,6 @@ namespace ar {
                 }
             }
         }
-        if (!playerObj && !interpreter.GetObjects().empty()) {
-            playerObj = &interpreter.GetObjects()[0];
-        }
         if (playerObj) {
             auto it = playerObj->properties.find("jump_force");
             if (it != playerObj->properties.end()) jumpForce = ParseFloat(it->second, 500.0f);
@@ -918,9 +954,6 @@ namespace ar {
                     break;
                 }
             }
-        }
-        if (!playerObj && !interpreter.GetObjects().empty()) {
-            playerObj = &interpreter.GetObjects()[0];
         }
         if (playerObj) {
             auto it = playerObj->properties.find("speed");
@@ -960,17 +993,27 @@ namespace ar {
 
     void RuntimeBridge::CmdSpawn(Entity* explicitTarget, const std::string& prefabName,
                                  const std::string& atTarget, float x, float y, int locMode) {
+        const ScriptObject* prefab = nullptr;
         auto itPrefab = m_Prefabs.find(prefabName);
-        if (itPrefab == m_Prefabs.end()) {
-            std::cout << "[RuntimeBridge] Spawn: prefab '" << prefabName << "' not found\n";
+        if (itPrefab != m_Prefabs.end()) {
+            prefab = &itPrefab->second;
+        }
+        else {
+            auto itBlueprint = m_Blueprints.find(prefabName);
+            if (itBlueprint != m_Blueprints.end()) {
+                prefab = &itBlueprint->second;
+            }
+        }
+
+        if (!prefab) {
+            std::cout << "[RuntimeBridge] Spawn: prefab/blueprint '" << prefabName << "' not found\n";
             return;
         }
 
         ++m_SpawnCounter;
         std::string newName = prefabName + "_" + std::to_string(m_SpawnCounter);
 
-        const ScriptObject& prefab = itPrefab->second;
-        Entity* newEntity = BuildEntityFromScript(newName, prefab);
+        Entity* newEntity = BuildEntityFromScript(newName, *prefab);
         if (!newEntity) return;
 
         auto* t = newEntity->GetComponent<Transform>();
@@ -1036,16 +1079,27 @@ namespace ar {
 
     Entity* RuntimeBridge::SpawnPrefabAt(const std::string& prefabName,
                                          const glm::vec2& position, Entity* shooter) {
+        const ScriptObject* prefab = nullptr;
         auto itPrefab = m_Prefabs.find(prefabName);
-        if (itPrefab == m_Prefabs.end()) {
-            std::cout << "[RuntimeBridge] SpawnPrefabAt: prefab '" << prefabName
+        if (itPrefab != m_Prefabs.end()) {
+            prefab = &itPrefab->second;
+        }
+        else {
+            auto itBlueprint = m_Blueprints.find(prefabName);
+            if (itBlueprint != m_Blueprints.end()) {
+                prefab = &itBlueprint->second;
+            }
+        }
+
+        if (!prefab) {
+            std::cout << "[RuntimeBridge] SpawnPrefabAt: prefab/blueprint '" << prefabName
                       << "' not found\n";
             return nullptr;
         }
 
         ++m_SpawnCounter;
         std::string newName = prefabName + "_" + std::to_string(m_SpawnCounter);
-        Entity* newEntity = BuildEntityFromScript(newName, itPrefab->second);
+        Entity* newEntity = BuildEntityFromScript(newName, *prefab);
 
         if (auto* t = newEntity ? newEntity->GetComponent<Transform>() : nullptr) {
             t->Position = position;

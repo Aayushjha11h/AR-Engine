@@ -32,6 +32,27 @@ namespace ar {
         return result;
     }
 
+    std::string BlueprintNode::ToString() const {
+        std::string result = "Blueprint(" + name;
+        if (!parent.empty()) result += " extends " + parent;
+        result += ") {\n";
+        for (const auto& prop : properties) {
+            result += "    " + prop.ToString() + "\n";
+        }
+        result += "}";
+        return result;
+    }
+
+    std::string InstanceNode::ToString() const {
+        std::string result = "Instance(" + name + " -> " + blueprintName + ") at (" +
+            std::to_string(x) + ", " + std::to_string(y) + ") {\n";
+        for (const auto& prop : overrides) {
+            result += "    " + prop.ToString() + "\n";
+        }
+        result += "}";
+        return result;
+    }
+
     std::string EventNode::ToString() const {
         std::string result = "Event(" + trigger + ") {\n";
         for (const auto& cmd : commands) {
@@ -45,6 +66,12 @@ namespace ar {
         std::string result = "AST:\n";
         for (const auto& obj : objects) {
             result += obj.ToString() + "\n";
+        }
+        for (const auto& bp : blueprints) {
+            result += bp.ToString() + "\n";
+        }
+        for (const auto& inst : instances) {
+            result += inst.ToString() + "\n";
         }
         for (const auto& evt : events) {
             result += evt.ToString() + "\n";
@@ -113,13 +140,24 @@ namespace ar {
         Advance(); // consume '#'
 
         if (!Expect(TokenType::IDENTIFIER, "object name")) return false;
-        ObjectNode obj;
-        obj.name = currentToken.literal;
+        const std::string name = currentToken.literal;
         Advance();
 
         if (!Expect(TokenType::IDENTIFIER, "object type")) return false;
-        obj.type = currentToken.literal;
+        const std::string type = currentToken.literal;
         Advance();
+
+        if (type == "Blueprint") {
+            return ParseBlueprint(name);
+        }
+
+        if (currentToken.type == TokenType::IDENTIFIER && currentToken.literal == "at") {
+            return ParseInstance(name, type);
+        }
+
+        ObjectNode obj;
+        obj.name = name;
+        obj.type = type;
 
         SkipNewlines();
 
@@ -143,8 +181,93 @@ namespace ar {
         return true;
     }
 
+    bool Parser::ParseBlueprint(const std::string& name) {
+        BlueprintNode blueprint;
+        blueprint.name = name;
+
+        if (currentToken.type == TokenType::IDENTIFIER && currentToken.literal == "extends") {
+            Advance();
+            if (!Expect(TokenType::IDENTIFIER, "blueprint parent")) return false;
+            blueprint.parent = currentToken.literal;
+            Advance();
+        }
+
+        SkipNewlines();
+
+        if (!Expect(TokenType::LEFT_BRACE, "blueprint body")) return false;
+        Advance();
+        SkipNewlines();
+
+        while (currentToken.type != TokenType::RIGHT_BRACE &&
+            currentToken.type != TokenType::END_OF_FILE) {
+            SkipNewlines();
+            if (currentToken.type == TokenType::RIGHT_BRACE) break;
+
+            if (!ParseProperty(blueprint)) return false;
+            SkipNewlines();
+        }
+
+        if (!Expect(TokenType::RIGHT_BRACE, "blueprint body")) return false;
+        Advance();
+
+        ast.blueprints.push_back(blueprint);
+        return true;
+    }
+
+    bool Parser::ParseInstance(const std::string& name, const std::string& type) {
+        if (currentToken.type != TokenType::IDENTIFIER || currentToken.literal != "at") {
+            error = "Parse error at line " + std::to_string(currentToken.line) +
+                ": expected 'at' after instance type";
+            return false;
+        }
+
+        InstanceNode instance;
+        instance.name = name;
+        instance.blueprintName = type;
+
+        Advance(); // consume 'at'
+
+        if (!Expect(TokenType::NUMBER, "instance x position")) return false;
+        instance.x = std::stof(currentToken.literal);
+        Advance();
+
+        if (!Expect(TokenType::NUMBER, "instance y position")) return false;
+        instance.y = std::stof(currentToken.literal);
+        Advance();
+
+        SkipNewlines();
+
+        if (currentToken.type == TokenType::LEFT_BRACE) {
+            Advance();
+            SkipNewlines();
+            while (currentToken.type != TokenType::RIGHT_BRACE && currentToken.type != TokenType::END_OF_FILE) {
+                SkipNewlines();
+                if (currentToken.type == TokenType::RIGHT_BRACE) break;
+                if (!ParseProperty(instance)) return false;
+                SkipNewlines();
+            }
+            if (!Expect(TokenType::RIGHT_BRACE, "instance body")) return false;
+            Advance();
+        }
+
+        ast.instances.push_back(instance);
+        return true;
+    }
+
     // property : value
     bool Parser::ParseProperty(ObjectNode& obj) {
+        return ParseProperty(obj.properties);
+    }
+
+    bool Parser::ParseProperty(BlueprintNode& blueprint) {
+        return ParseProperty(blueprint.properties);
+    }
+
+    bool Parser::ParseProperty(InstanceNode& instance) {
+        return ParseProperty(instance.overrides);
+    }
+
+    bool Parser::ParseProperty(std::vector<Property>& properties) {
         if (!Expect(TokenType::IDENTIFIER, "property name")) return false;
         Property prop;
         prop.name = currentToken.literal;
@@ -174,7 +297,7 @@ namespace ar {
         prop.value = { vtype, currentToken.literal };
         Advance();
 
-        obj.properties.push_back(prop);
+        properties.push_back(prop);
         return true;
     }
 

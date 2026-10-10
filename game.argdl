@@ -1,5 +1,6 @@
-#Background Background
-{
+
+
+#Background Background {
     x : 600
     y : 300
     width : 1400
@@ -9,68 +10,7 @@
     skip_collision : on
 }
 
-#Floor Platform
-{
-    x : 600
-    y : 580
-    width : 1100
-    height : 40
-    color : gray
-    sprite : "assets/meteorBig.png"
-    kinematic : on
-    collider : box
-}
-
-#WallLeft Platform
-{
-    x : 50
-    y : 300
-    width : 40
-    height : 600
-    color : gray
-    sprite : "assets/meteorBig.png"
-    kinematic : on
-    collider : box
-}
-
-#WallRight Platform
-{
-    x : 1150
-    y : 300
-    width : 40
-    height : 600
-    color : gray
-    sprite : "assets/meteorBig.png"
-    kinematic : on
-    collider : box
-}
-
-#PlatformLeft Platform
-{
-    x : 250
-    y : 420
-    width : 200
-    height : 20
-    color : gray
-    sprite : "assets/meteorSmall.png"
-    kinematic : on
-    collider : box
-}
-
-#PlatformRight Platform
-{
-    x : 950
-    y : 420
-    width : 200
-    height : 20
-    color : gray
-    sprite : "assets/meteorSmall.png"
-    kinematic : on
-    collider : box
-}
-
-#Player Character
-{
+#Player Character {
     x : 600
     y : 500
     size : 32
@@ -86,12 +26,33 @@
     invuln_duration : 1.5
     knockback : 160
     collider : box
+    tag : Player
 }
 
-#TurretLeft Item
-{
-    x : 250
-    y : 396
+
+
+#Platform Blueprint {
+    color : gray
+    sprite : "assets/meteorBig.png"
+    kinematic : on
+    collider : box
+}
+
+#SmallPlatform Blueprint extends Platform {
+    sprite : "assets/meteorSmall.png"
+}
+
+#Coin Blueprint {
+    size : 16
+    color : yellow
+    sprite : "assets/powerupBlue.png"
+    gravity : off
+    trigger : on
+    collider : box
+    tag : Coin
+}
+
+#Turret Blueprint {
     size : 40
     color : red
     sprite : "assets/turretBase_big.png"
@@ -103,122 +64,32 @@
     collider : box
 }
 
-#TurretRight Item
-{
-    x : 950
-    y : 396
-    size : 40
-    color : red
-    sprite : "assets/turretBase_big.png"
-    mass : 999
-    gravity : off
-    kinematic : on
-    health : 8
-    tag : Turret
-    collider : box
-}
-
-#Coin1 Item
-{
-    x : 250
-    y : 380
-    size : 16
-    color : yellow
-    sprite : "assets/powerupBlue.png"
-    gravity : off
-    trigger : on
-    collider : box
-}
-
-#Coin2 Item
-{
-    x : 950
-    y : 380
-    size : 16
-    color : yellow
-    sprite : "assets/powerupBlue.png"
-    gravity : off
-    trigger : on
-    collider : box
-}
-
-#Coin3 Item
-{
-    x : 150
-    y : 540
-    size : 16
-    color : yellow
-    sprite : "assets/powerupBlue.png"
-    gravity : off
-    trigger : on
-    collider : box
-}
-
-#Coin4 Item
-{
-    x : 600
-    y : 540
-    size : 16
-    color : yellow
-    sprite : "assets/powerupBlue.png"
-    gravity : off
-    trigger : on
-    collider : box
-}
-
-#Coin5 Item
-{
-    x : 1050
-    y : 540
-    size : 16
-    color : yellow
-    sprite : "assets/powerupBlue.png"
-    gravity : off
-    trigger : on
-    collider : box
-}
-
-#Coin6 Item
-{
-    x : 600
-    y : 280
-    size : 16
-    color : yellow
-    sprite : "assets/powerupBlue.png"
-    gravity : off
-    trigger : on
-    collider : box
-}
-
-#PlayerBulletPrefab Prefab
-{
-    tag : PlayerBullet
-    size : 12
+#Bullet Blueprint {
     color : cyan
     sprite : "assets/laserBlue01.png"
     physics : off
     collider : box
+}
+
+#PlayerBullet Blueprint extends Bullet {
+    tag : PlayerBullet
+    size : 12
     projectile_speed : 900
     projectile_lifetime : 0.6
     projectile_damage : 1
 }
 
-#EnemyBulletPrefab Prefab
-{
+#EnemyBullet Blueprint extends Bullet {
     tag : EnemyBullet
     size : 10
     color : red
     sprite : "assets/laserRed01.png"
-    physics : off
-    collider : box
     projectile_speed : 260
     projectile_lifetime : 3.0
     projectile_damage : 1
 }
 
-#GruntPrefab Prefab
-{
-    tag : Enemy
+#Enemy Blueprint {
     size : 32
     color : purple
     sprite : "assets/enemyBlack1.png"
@@ -227,30 +98,26 @@
     friction : 0.5
     health : 2
     collider : box
-    patrol_min : 100
-    patrol_max : 1100
     patrol_speed : 60
+    tag : Enemy
 }
 
-#BossPrefab Prefab
-{
-    tag : Enemy
+#Grunt Blueprint extends Enemy {
+    patrol_min : 100
+    patrol_max : 1100
+}
+
+#Boss Blueprint extends Enemy {
     size : 56
     color : magenta
     sprite : "assets/enemyRed1.png"
     mass : 3
-    gravity : on
-    friction : 0.5
     health : 15
     boss : on
     hp : 15
-    collider : box
 }
 
-#SpawnerLeft Item
-{
-    x : 150
-    y : 100
+#Spawner Blueprint {
     size : 24
     color : green
     sprite : "assets/spaceStation_018.png"
@@ -260,140 +127,131 @@
     health : 4
     tag : Spawner
     skip_collision : on
+    spawn_at_self : on
+}
+
+
+
+#Floor         Platform      at 600  580 {
+    width : 1100
+    height : 40
+}
+
+#WallLeft      Platform      at 50   300 {
+    width : 40
+    height : 600
+}
+
+#WallRight     Platform      at 1150 300 {
+    width : 40
+    height : 600
+}
+
+#PlatformLeft  SmallPlatform at 250  420 {
+    width : 200
+    height : 20
+}
+
+#PlatformRight SmallPlatform at 950  420 {
+    width : 200
+    height : 20
+}
+
+#TurretLeft  Turret at 250 396
+#TurretRight Turret at 950 396
+
+#Coin1 Coin at 250  380
+#Coin2 Coin at 950  380
+#Coin3 Coin at 150  540
+#Coin4 Coin at 600  540
+#Coin5 Coin at 1050 540
+#Coin6 Coin at 600  280
+
+#SpawnerLeft  Spawner at 150  100 {
     spawn_every : 8
-    spawn_prefab : GruntPrefab
-    spawn_at_self : on
+    spawn_prefab : Grunt
 }
 
-#SpawnerRight Item
-{
-    x : 1050
-    y : 100
-    size : 24
-    color : green
-    sprite : "assets/spaceStation_018.png"
-    mass : 999
-    gravity : off
-    kinematic : on
-    health : 4
-    tag : Spawner
-    skip_collision : on
+#SpawnerRight Spawner at 1050 100 {
     spawn_every : 10
-    spawn_prefab : GruntPrefab
-    spawn_at_self : on
+    spawn_prefab : Grunt
 }
 
-#Enemy1 Enemy
-{
-    x : 400
-    y : 540
-    size : 32
-    color : purple
-    sprite : "assets/enemyBlack1.png"
-    mass : 1
-    gravity : on
-    friction : 0.5
-    health : 2
+#Enemy1 Enemy at 400 540 {
     patrol_min : 200
     patrol_max : 500
-    patrol_speed : 60
-    collider : box
 }
 
-#Enemy2 Enemy
-{
-    x : 800
-    y : 540
-    size : 32
-    color : purple
-    sprite : "assets/enemyBlack1.png"
-    mass : 1
-    gravity : on
-    friction : 0.5
-    health : 2
+#Enemy2 Enemy at 800 540 {
     patrol_min : 700
     patrol_max : 1000
-    patrol_speed : 60
-    collider : box
 }
 
-on a
-{
+
+
+on a {
     move left
     rotate 180
 }
 
-on d
-{
+on d {
     move right
     rotate 0
 }
 
-on left
-{
+on left {
     move left
     rotate 180
 }
 
-on right
-{
+on right {
     move right
     rotate 0
 }
 
-on space
-{
+on space {
     jump
 }
 
-on w
-{
+on w {
     jump
 }
 
-on up
-{
+on up {
     jump
 }
 
-on j
-{
-    spawn PlayerBulletPrefab
+on j {
+    spawn PlayerBullet
 }
 
-on collide Coin
-{
+on collide Coin {
     despawn
     heal Player 2
     play pickup
 }
 
-on collide Enemy
-{
+on collide Enemy {
     damage Player 1
     damage 1
     play hurt
 }
 
-on collide Turret
-{
+on collide Turret {
     damage Player 1
     play hurt
 }
 
-on timer 4
-{
+on timer 4 {
     look_at TurretLeft Player
-    TurretLeft.spawn EnemyBulletPrefab
+    TurretLeft.spawn EnemyBullet
 }
 
-on timer 5
-{
+on timer 5 {
     look_at TurretRight Player
-    TurretRight.spawn EnemyBulletPrefab
+    TurretRight.spawn EnemyBullet
 }
 
-on timer 60
-{
-    spawn BossPrefab at 600 100
+on timer 60 {
+    spawn Boss at 600 100
 }

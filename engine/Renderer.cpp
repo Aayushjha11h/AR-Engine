@@ -145,6 +145,7 @@ void main() {
 
         m_Shader.Use();
         m_Shader.SetMat4("uProjection", m_Projection);
+        m_Shader.SetInt("uTexture", 0); // all groups sample from texture unit 0
 
         glBindVertexArray(m_VAO);
 
